@@ -1,0 +1,5 @@
+"TIS IS A STRING
+"this ysta g" 90278main6{musa7}
+"here" input()
+and()
+num := 8
