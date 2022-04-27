@@ -15,9 +15,11 @@ public class Lexer{
         try{
             int id = 1;
             File infile = new File("input.txt");
+            int linenum = 0;
             try (Scanner read = new Scanner(infile)) {
                 while(read.hasNextLine())
                 {
+                    linenum++;
                     String data = read.nextLine();
 
                     for(int i=0;i<data.length();i++)
@@ -37,7 +39,7 @@ public class Lexer{
                                 }
                             }
                             else{
-                                System.out.println("Error: Expected shortstring");
+                                System.out.println("line: "+linenum+", Error: Expected shortstring");
                                 i++;
                                 while(i < data.length() && data.charAt(i)!='\"')
                                 {
@@ -59,7 +61,7 @@ public class Lexer{
                         {
                             if(data.charAt(i)=='0')
                             {
-                                System.out.println("Error: invalid number");
+                                System.out.println("line: "+linenum+", Error: invalid number");
 
                                 while(i<data.length() && Character.isDigit(data.charAt(i+1)))
                                 {
@@ -137,7 +139,7 @@ public class Lexer{
                                 }
                                 else
                                 {
-                                    System.out.println("Error: Expected '=' after ':' ");
+                                    System.out.println("line: "+linenum+", Error: Expected '=' after ':' ");
                                 }
                             }
                             else
@@ -159,7 +161,7 @@ public class Lexer{
                         }
                         else
                         {
-                            System.out.println("Error: Unknown symbol");
+                            System.out.println("line: "+linenum+", Error: Unknown symbol");
                         }
                     }
 
@@ -173,12 +175,12 @@ public class Lexer{
             System.out.println(e);
         }
 
-        for(Token toke : tokens)
-        {
-            System.out.print("Id: "+toke.ID +" | ");
-            System.out.print("Content: "+toke.content +" | ");
-            System.out.println(" type: "+toke.type);
-        }
+        // for(Token toke : tokens)
+        // {
+        //     System.out.print("Id: "+toke.ID +" | ");
+        //     System.out.print("Content: "+toke.content +" | ");
+        //     System.out.println(" type: "+toke.type);
+        // }
         
     }
 
