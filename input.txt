@@ -1,0 +1,17 @@
+main{
+    sum := 8;
+
+    dig := 8;
+
+    musa
+    summ := add(sum , dig);
+
+    if(eq(32\summ)) then{output := "TRUE";}
+
+    halt;
+
+    num sum;
+    num dig;
+    num s 3 umm;
+
+}
