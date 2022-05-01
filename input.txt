@@ -1,9 +1,10 @@
 main{
-    sum := 8;
+    "sum" := 8;
 
     dig := 8;
 
-    musa
+    input (musa);
+   var
     summ := add(sum , dig);
 
     if(eq(32\summ)) then{output := "TRUE";}

@@ -28,7 +28,7 @@ public class Lexer{
 
                         if(data.charAt(i)=='\"')
                         {
-                            String t = "";
+                            String t = "\"";
                             if(checkForShortString(data,i))
                             {
                                 i++;
@@ -37,15 +37,20 @@ public class Lexer{
                                     t+=data.charAt(i);
                                     i++;
                                 }
+                                t+="\"";
                             }
                             else{
-                                System.out.println("line: "+linenum+", Error: Expected shortstring");
+                                
                                 i++;
+                                t+="\"";
                                 while(i < data.length() && data.charAt(i)!='\"')
                                 {
+                                    t+=data.charAt(i);
                                     i++;
                                 }
-                                continue;
+                                t+="\"";
+                                System.out.println("line: "+linenum+", Error: "+ t +" Expected shortstring ");
+                                return;
                                 
                             }
 
@@ -67,7 +72,7 @@ public class Lexer{
                                 {
                                     i++;
                                 }
-                                continue;
+                                return;
                             }
                             String strNum ="";
                             strNum += data.charAt(i);
@@ -92,6 +97,15 @@ public class Lexer{
                         else if(Character.isLetter(data.charAt(i)))
                         {
                             String word = captureWord(data,i);
+
+                            for(int count = 0; count< word.length() ; count++)
+                            {
+                                if(Character.isUpperCase(word.charAt(count)))
+                                {
+                                    System.out.println("line: "+linenum+", Error: invalid identifyer");
+                                    return;
+                                }
+                            }
 
                             i = i + word.length()-1;
 
@@ -140,6 +154,7 @@ public class Lexer{
                                 else
                                 {
                                     System.out.println("line: "+linenum+", Error: Expected '=' after ':' ");
+                                    return;
                                 }
                             }
                             else
@@ -162,6 +177,7 @@ public class Lexer{
                         else
                         {
                             System.out.println("line: "+linenum+", Error: Unknown symbol");
+                            return;
                         }
                     }
 
