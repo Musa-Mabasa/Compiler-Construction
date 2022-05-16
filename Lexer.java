@@ -9,7 +9,7 @@ public class Lexer{
 
     }
 
-    public void create()
+    public LinkedList<Token> create()
     {
         LinkedList<Token> tokens = new LinkedList<Token>();
         try{
@@ -50,12 +50,12 @@ public class Lexer{
                                 }
                                 t+="\"";
                                 System.out.println("line: "+linenum+", Error: "+ t +" Expected shortstring ");
-                                return;
+                                return null;
                                 
                             }
 
                             Token tok = new Token();
-                            tok.type = "String";
+                            tok.type = "ShortString";
                             tok.content = t;
                             tok.ID = id; 
                             tokens.add(tok);
@@ -72,7 +72,7 @@ public class Lexer{
                                 {
                                     i++;
                                 }
-                                return;
+                                return null;
                             }
                             String strNum ="";
                             strNum += data.charAt(i);
@@ -87,7 +87,7 @@ public class Lexer{
                                 next++;
                             }
                             Token tok = new Token();
-                            tok.type = "number";
+                            tok.type = "Number";
                             tok.content = strNum;
                             tok.ID = id; 
                             tokens.add(tok);
@@ -103,7 +103,7 @@ public class Lexer{
                                 if(Character.isUpperCase(word.charAt(count)))
                                 {
                                     System.out.println("line: "+linenum+", Error: invalid identifyer");
-                                    return;
+                                    return null;
                                 }
                             }
 
@@ -154,7 +154,7 @@ public class Lexer{
                                 else
                                 {
                                     System.out.println("line: "+linenum+", Error: Expected '=' after ':' ");
-                                    return;
+                                    return null;
                                 }
                             }
                             else
@@ -177,7 +177,7 @@ public class Lexer{
                         else
                         {
                             System.out.println("line: "+linenum+", Error: Unknown symbol");
-                            return;
+                            return null;
                         }
                     }
 
@@ -191,12 +191,15 @@ public class Lexer{
             System.out.println(e);
         }
 
-        // for(Token toke : tokens)
-        // {
-        //     System.out.print("Id: "+toke.ID +" | ");
-        //     System.out.print("Content: "+toke.content +" | ");
-        //     System.out.println(" type: "+toke.type);
-        // }
+        for(Token toke : tokens)
+        {
+            System.out.print("Id: "+toke.ID +" | ");
+            System.out.print("Content: "+toke.content +" | ");
+            System.out.println(" type: "+toke.type);
+        }
+
+        return tokens;
+        
         
     }
 
@@ -261,4 +264,5 @@ public class Lexer{
         return false;
 
     }
+
 }

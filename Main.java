@@ -1,8 +1,8 @@
 class Main{
     public static void main(String[] args)
     {
-        Lexer lex = new Lexer();
-        lex.create();
+        Parser parse = new Parser();
+        parse.parse();;
     }
         
 }
