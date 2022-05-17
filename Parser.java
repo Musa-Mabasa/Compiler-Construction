@@ -52,11 +52,10 @@ public class Parser{
                         Algo.id = id++;
                         Algo.nodeType = "Non-Terminal";
                         // SPL.children.add(Algo);
-
-                        i++;
-                        if(lex.get(i).content.equals("Halt"))
+                        System.out.println("After Algo "+ lex.get(i).content);
+                        if(lex.get(i).content.equals("halt"))
                         {
-                            System.out.println("Halt");
+                            System.out.println("halt");
                             Node node2 = new Node();
                             node2.id=id++;
                             node2.nodeType = "Terminal";
@@ -231,14 +230,15 @@ public class Parser{
         }
         System.out.println("Instr "+lex.get(i).content);
         Boolean ins = checkInstr();
+        System.out.println("Whats instr "+ ins);
         if(ins)
         {
-            System.out.println("Sym "+lex.get(i).content);
+            System.out.println("Sym "+lex.get(i).content+" "+i);
             if(lex.get(i).content.equals(";"))
             {
                 System.out.println(";");
                 i++;
-                checkAlgorithm();
+                return checkAlgorithm();
             }
             else
             {
@@ -248,6 +248,7 @@ public class Parser{
 
         }
             //error, Parser stumbles
+            System.out.println("WHy man");
         return false;
 
     }
@@ -255,13 +256,48 @@ public class Parser{
     private Boolean checkInstr()
     {
         System.out.println("In Instr: "+lex.get(i).content);
+        int index = i;
         Boolean ass = checkAssign();
-        Boolean bra = checkBranch();
-        Boolean loo = checkLoop();
-        Boolean pcall = checkPcall();
-
-        if(ass || bra || loo || pcall)
+        Boolean bra = false;
+        Boolean loo = false;
+        Boolean pcall = false;
+        if(!ass)
         {
+            i=index;
+            bra = checkBranch();
+            if(!bra)
+            {
+
+                i=index;
+                loo = checkLoop();
+                if(!loo)
+                {
+                    i=index;
+                    pcall = checkPcall();
+                }
+            }
+        }
+        
+        
+       
+
+        if(ass)
+        {
+            i++;
+            return true;
+        }
+        if(bra)
+        {
+            return true;
+        }
+        if(loo)
+        {
+            i++;
+            return true;
+        }
+        if(pcall)
+        {
+            i++;
             return true;
         }
         else
@@ -274,7 +310,8 @@ public class Parser{
     {
         if(lex.get(i).content.equals("}"))
         {
-            return true;
+            System.out.println("The parser has passed");
+            System.exit(0);
         }
 
         Boolean dec = checkDec();
@@ -424,17 +461,76 @@ public class Parser{
 
     private Boolean checkExpr()
     {
-        Boolean con = checkConst();
-        Boolean var = checkVar();
-        Boolean field = checkField();
-        Boolean unOp = checkUnOP();
-        Boolean binOp = checkBinOp();
+        // Boolean con = checkConst();
+        // Boolean var = checkVar();
+        // Boolean field = checkField();
+        // Boolean unOp = checkUnOP();
+        // Boolean binOp = checkBinOp();
 
-        if(con || var || field || unOp || binOp)
+        // if(con ||)
+        // {
+        //     return true;
+        // }
+        // else 
+        // {
+        //     return false;
+        // }
+
+        System.out.println("Second Expr!! "+lex.get(i).content);
+        int index = i;
+        Boolean con = checkConst();
+        Boolean var = false;
+        Boolean field = false;
+        Boolean unOp = false;
+        Boolean binOp = false;
+
+        if(!con)
+        {
+            i=index;
+            var = checkVar();
+            if(!var)
+            {
+                i=index;
+                field = checkField();
+                if(!field)
+                {
+                    i=index;
+                    unOp = checkUnOP();
+                    if(!unOp)
+                    {
+                        System.out.println("Un failed!!");
+                        i=index;
+                        binOp = checkBinOp();
+                    }
+                }
+            }
+        }
+        
+        
+       
+
+        if(con)
         {
             return true;
         }
-        else 
+        if(var)
+        {
+            System.out.println("Var passed!!");
+            return true;
+        }
+        if(field)
+        {
+            return true;
+        }
+        if(unOp)
+        {
+            return true;
+        }
+        if(binOp)
+        {
+            return true;
+        }
+        else
         {
             return false;
         }
@@ -565,6 +661,7 @@ public class Parser{
         }
         if(lex.get(i).content.equals("not"))
         {
+            System.out.println("Is it not "+ lex.get(i).content);
             i++;
             if(lex.get(i).content.equals("("))
             {
@@ -700,6 +797,7 @@ public class Parser{
                     i++;
                     if(lex.get(i).content.equals(","))
                     {
+                        i++;
                         Boolean expr2 = checkExpr();
                         if(expr2)
                         {
@@ -918,6 +1016,7 @@ public class Parser{
 
     private Boolean checkBranch()
     {
+        System.out.println("In branccccc!!!"+ lex.get(i).content);
         if(lex.get(i).content.equals("if"))
         {
             i++;
@@ -927,25 +1026,36 @@ public class Parser{
                 Boolean expr = checkExpr();
                 if(expr)
                 {
-                    System.out.println("In Branch: "+lex.get(i).content);
                     if(lex.get(i).content.equals(")"))
                     {
-                        if(lex.get(i).content.equals("then"))
+                        i++;
+                        if(lex.get(i).content.equals(")"))
                         {
                             i++;
+                        }
+                        if(lex.get(i).content.equals("then"))
+                        {
+
+                            i++;
                             if(lex.get(i).content.equals("{"))
-                            {
+                            {   
                                 i++;
+                                System.out.println("Algo check "+ lex.get(i).content);
                                 Boolean algo = checkAlgorithm();
+                                
                                 if(algo)
                                 {
-                                    i++;
+                                    System.out.println("After Algo check "+ lex.get(i).content+" "+i);
                                     if(lex.get(i).content.equals("}"))
                                     {
                                         i++;
+
                                         Boolean alt = checkAlt();
                                         if(alt)
                                         {
+                                            System.out.println("Atl check "+ alt);
+                                        
+                                            System.out.println("Please hlee "+ lex.get(i).content+" "+i);
                                             return true;
                                         }
                                         else
@@ -988,7 +1098,7 @@ public class Parser{
                 return false;
             }
         }
-        return true;
+        return false;
     }
 
     private Boolean checkAlt()
@@ -1002,9 +1112,9 @@ public class Parser{
                 Boolean algo = checkAlgorithm();
                 if(algo)
                 {
-                    i++;
                     if(lex.get(i).content.equals("}"))
                     {
+                        i++;
                         return true;
                     }
                     else
@@ -1022,6 +1132,11 @@ public class Parser{
                 return false;
             }
 
+        }
+        if(lex.get(i).content.equals(";"))
+        {
+            System.out.println("Alterr check "+ lex.get(i).content+" "+i);
+            return true;
         }
         else
         {
@@ -1048,11 +1163,6 @@ public class Parser{
                 Boolean algo = checkAlgorithm();
                 if(algo)
                 {
-                    i++;
-                    if(i==lex.size())
-                    {
-                        return false;
-                    }
                     if(lex.get(i).content.equals("}"))
                     {
                         i++;
@@ -1077,13 +1187,9 @@ public class Parser{
                                 Boolean expr = checkExpr();
                                 if(expr)
                                 {
-                                    i++;
-                                    if(i==lex.size())
-                                    {
-                                        return false;
-                                    }
                                     if(lex.get(i).content.equals(")"))
                                     {
+                                        i++;
                                         return true;
                                     }
                                     else

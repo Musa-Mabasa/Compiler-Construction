@@ -1,7 +1,11 @@
 main{
     name := musa;
     if(eq(name,musa))
-    then{output := name}
+    then{output := name;} 
+    else{name := none;};
+    do{call left;}
+    until(eq(name,musa));
+
     halt;
 
-}
+} 
