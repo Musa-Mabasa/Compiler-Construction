@@ -1,11 +1,1 @@
-main{
-    name := musa;
-    if(eq(name,musa))
-    then{output := name;} 
-    else{name := none;};
-    do{call left;}
-    until(eq(name,musa));
-
-    halt;
-
-} 
+proc musa{proc musa1{output := 8; return; }, call musa1; return },

@@ -1,4 +1,7 @@
+import java.util.EnumSet;
 import java.util.LinkedList;
+
+import javax.swing.text.StyledEditorKit.BoldAction;
 public class Parser{
 
     private Lexer lexer = new Lexer();
@@ -6,6 +9,7 @@ public class Parser{
     private LinkedList<Token> storer;
     private int i =0;
     private int id = 1;
+    Boolean done = false;
 
     public void parse()
     {
@@ -76,6 +80,7 @@ public class Parser{
                                 // nodes.add(node2);
 
                                 i++;
+                                done = true;
                                 Boolean varDecl = checkVarDecl();
                                 if(varDecl)
                                 {
@@ -135,6 +140,7 @@ public class Parser{
             else if(lex.get(i).content.equals("proc"))
             {
                 Boolean PD = checkProcDefs();
+                System.out.println("Check man "+PD+" "+i);
                 
             }
             else
@@ -147,80 +153,272 @@ public class Parser{
         
     }
 
+    // private Boolean checkProcDefs()
+    // {
+    //     if(lex.get(i).content.equals("proc"))
+    //     {
+    //         i++;
+    //     }
+    //     if(lex.get(i).type.equals("userDefinedName"))
+    //     {
+    //         i++;
+    //         if(lex.get(i).content.equals("{"))
+    //         {
+    //             i++;
+    //             Boolean prc = checkOutterProcDefs();
+    //             if(prc)
+    //             {
+    //                 System.out.println("prc "+prc);
+    //                 Boolean Alg = checkAlgorithm();
+    //                 if(Alg)
+    //                 {
+    //                     if(lex.get(i).content.equals("return"))
+    //                     {
+    //                         i++;
+    //                         if(lex.get(i).content.equals(";"))
+    //                         {
+    //                             Boolean varD = checkVarDecl();
+    //                             if(varD)
+    //                             {
+    //                                 if(lex.get(i).content.equals("}"))
+    //                                 {
+    //                                     return true;
+    //                                 }
+    //                             }
+    //                         }
+    //                     }
+    //                 }
+    //             }
+               
+    //         }
+    //     }
+    //     else
+    //     {
+    //         Boolean alg = checkAlgorithm();
+    //         if(alg)
+    //         {
+    //             if(lex.get(i).content.equals("return"))
+    //             {
+    //                 i++;
+    //                 if(lex.get(i).content.equals(";"))
+    //                 {
+    //                     i++;
+    //                     Boolean varD = checkVarDecl();
+    //                     if(varD)
+    //                     {
+    //                         System.out.println("alllg "+lex.get(i).content);
+    //                         if(lex.get(i).content.equals("}"))
+    //                         {
+    //                             return true;
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //         }
+
+    //     }
+    //     return false;
+    // }
+
+    // private Boolean checkOutterProcDefs()
+    // {
+    //     if(lex.get(i).content.equals("main"))
+    //     {
+    //         System.out.println("We are true: "+lex.get(i).content);
+    //         return true;
+    //     }
+    //     System.out.println("Before "+lex.get(i).content);
+    //     Boolean prc = checkProcDefs();
+    //     System.out.println("Procbool "+prc);
+    //     if(prc)
+    //     {
+    //         if(lex.get(i).content.equals(","))
+    //         {
+    //             System.out.println(",");
+    //             i++;
+    //             return checkOutterProcDefs();
+    //         }
+    //         else
+    //         {
+    //             //error parser stumbles
+    //             return false;
+    //         }
+
+    //     }
+    //         //error, Parser stumbles
+    //         System.out.println("WHy man");
+    //     return false;
+    // }
+
     private Boolean checkProcDefs()
-    {
-        i++;
-        if(lex.get(i).type.equals("userDefinedName"))
+    { 
+        if(lex.get(i).content.equals("main"))
         {
-            if(lex.get(i).content.equals("{"))
+            return true;
+        }
+        LinkedList<Token> checkList = new LinkedList<Token>();
+        while(i<lex.size() && !lex.get(i).content.equals("main"))
+        {
+            checkList.add(lex.get(i));
+            i++;
+        }
+        // if(i==lex.size() || !lex.get(i).content.equals("main"))
+        // {
+        //     return false;
+        // }
+        Boolean status = true;
+
+        System.out.println("i "+checkList.size());
+
+        int last = 0;
+        for(int j = 0;j<checkList.size();j++)
+        {
+            System.out.println("J man "+j);
+            int index = i;
+            i = j;
+            Boolean genAlg = checkAlgorithm();
+            if(genAlg)
             {
-                i++;
-                checkInnerProcDefs();
-                i++;
-                Boolean Alg = checkAlgorithm();
-                if(Alg)
+                j=i;
+            }
+            i = index;
+            if(checkList.get(j).content.equals("proc"))
+            {
+                if(checkList.get(j+1).type.equals("userDefinedName"))
                 {
-                    i++;
-                    if(lex.get(i).content.equals("return"))
+                    continue;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            if(checkList.get(j).type.equals("userDefinedName"))
+            {
+                if(checkList.get(j+1).content.equals("{"))
+                {
+                    continue;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            if(checkList.get(j).type.equals("{"))
+            {
+                int index2 = i;
+                i = j+1;
+                Boolean alg = checkAlgorithm();
+                if(alg)
+                {
+                    j=i;
+                }
+    
+                i = index2;
+                if(checkList.get(j+1).type.equals("proc") || alg )
+                {
+                    continue;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            if(checkList.get(j).type.equals("}"))
+            {
+                if(checkList.get(j+1).type.equals(","))
+                {
+                    continue;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            if(checkList.get(j).type.equals(","))
+            {
+                if(checkList.get(j+1).type.equals("proc"))
+                {
+                    continue;
+                }
+                if(checkList.get(j+1).type.equals("main"))
+                {
+
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            if(genAlg)
+            {
+                if(checkList.get(j).content.equals("return"))
+                {
+                    continue;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            if(checkList.get(j).content.equals("return"))
+            {
+                if(checkList.get(j+1).content.equals(";"))
+                {
+                    continue;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            if(checkList.get(j).content.equals(";"))
+            {
+                int index3 = i;
+                i = j;
+                i++;
+                Boolean varD = checkVarDecl();
+                if(varD)
+                {
+                    j=i;
+                }
+                
+                i = index3;
+                
+                if(varD)
+                {
+                    if(checkList.get(j).content.equals("}"))
                     {
-                        i++;
-                        if(lex.get(i).content.equals(";"))
+                        if(j+1<checkList.size())
                         {
-                            Boolean varD = checkVarDecl();
-                            if(varD)
+                            if(checkList.get(j+1).content.equals(",") && j+2==checkList.size())
                             {
-                                if(lex.get(i).content.equals("}"))
-                                {
-                                    return true;
-                                }
+                                return true;
+                            }
+                            else if(checkList.get(j+1).content.equals(","))
+                            {
+                                continue;
                             }
                         }
+                        else
+                        {
+                            return false;
+                        }
+                        
                     }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
                 }
             }
         }
         return false;
     }
-
-    private Boolean checkInnerProcDefs()
-    {
-        i++;
-        if(lex.get(i).type.equals("userDefinedName"))
-        {
-            if(lex.get(i).content.equals("{"))
-            {
-                i++;
-                checkInnerProcDefs();
-                i++;
-                Boolean Alg = checkAlgorithm();
-                if(Alg)
-                {
-                    i++;
-                    if(lex.get(i).content.equals("return"))
-                    {
-                        i++;
-                        if(lex.get(i).content.equals(";"))
-                        {
-                            Boolean varD = checkVarDecl();
-                            if(varD)
-                            {
-                                if(lex.get(i).content.equals("}"))
-                                {
-                                    return true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        else
-        {
-            return false;
-        }
-        return false;
-    }
-
     private Boolean checkAlgorithm()
     {
         if(lex.get(i).content.equals("halt") || lex.get(i).content.equals("return") || lex.get(i).content.equals("}"))
@@ -308,10 +506,14 @@ public class Parser{
 
     private Boolean checkVarDecl() 
     {
-        if(lex.get(i).content.equals("}"))
+        if(lex.get(i).content.equals("}") && done)
         {
             System.out.println("The parser has passed");
             System.exit(0);
+        }
+        if(lex.get(i).content.equals("}"))
+        {
+            return true;
         }
 
         Boolean dec = checkDec();
@@ -1246,11 +1448,6 @@ public class Parser{
                 Boolean expr = checkExpr();
                 if(expr)
                 {
-                    i++;
-                    if(i==lex.size())
-                    {
-                        return false;
-                    }
                     if(lex.get(i).content.equals(")"))
                     {
                         i++;
@@ -1275,11 +1472,6 @@ public class Parser{
                                 Boolean algo = checkAlgorithm();
                                 if(algo)
                                 {
-                                    i++;
-                                    if(i==lex.size())
-                                    {
-                                        return false;
-                                    }
                                     if(lex.get(i).content.equals("}"))
                                     {
                                         return true;
