@@ -19,9 +19,14 @@ public class NFA {
        this.startState.transitions.add(outTransition);
     }
 
-    public NFA unionNFA(List<NFA> nfaList){
-        this.startState = new State('A', false);
-        this.endState = new State('A', false);
+    public NFA unionNFA(List<NFA> nfaList, int count){
+        // integer to character
+        String label = Integer.toString(count);
+        this.startState = new State(label, false);
+        count++;
+        String label2 = Integer.toString(count);
+        this.endState = new State(label2, false);
+        count++;
         this.states.add(startState);
         this.states.add(endState);
         for(NFA nfa : nfaList){
@@ -36,9 +41,13 @@ public class NFA {
         return this;
     }
 
-    public NFA kleeNfa(NFA nfa){
-        startState = new State('A', false);
-        endState = new State('A', false);
+    public NFA kleeNfa(NFA nfa, int count){
+        String label = Integer.toString(count);
+        this.startState = new State(label, false);
+        count++;
+        String label2 = Integer.toString(count);
+        this.endState = new State(label2, false);
+        count++;
         this.states.add(startState);
         this.states.add(endState);
         addEpsilonTransition(startState,nfa.startState);
@@ -51,14 +60,36 @@ public class NFA {
         return this;
     }
 
-    public NFA plus(NFA nfa){
-        startState = new State('A', false);
-        endState = new State('A', false);
+    public NFA plus(NFA nfa, int count){
+        String label = Integer.toString(count);
+        this.startState = new State(label, false);
+        count++;
+        String label2 = Integer.toString(count);
+        this.endState = new State(label2, false);
+        count++;
         this.states.add(startState);
         this.states.add(endState);
         startState.addTransition(nfa.startState, '#');
         nfa.endState.addTransition(endState, '#');
         endState.addTransition(startState, '#');
+        for(State state :nfa.states){
+            this.states.add(state);
+        }
+        return this;
+    }
+
+    public NFA optional(NFA nfa, int count){
+        String label = Integer.toString(count);
+        this.startState = new State(label, false);
+        count++;
+        String label2 = Integer.toString(count);
+        this.endState = new State(label2, false);
+        count++;
+        startState.addTransition(endState, '#');
+        startState.addTransition(nfa.startState, '#');
+        nfa.endState.addTransition(endState, '#');
+        this.states.add(startState);
+        this.states.add(endState);
         for(State state :nfa.states){
             this.states.add(state);
         }

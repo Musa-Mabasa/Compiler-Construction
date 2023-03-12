@@ -2,11 +2,11 @@ import java.util.*;
 
 public class State {
 
-    public Character name;
+    public String name;
     public boolean isAccepting;
     public List<Transition> transitions;
 
-    public State(Character name, boolean isAccepting){
+    public State(String name, boolean isAccepting){
         this.name = name;
         this.isAccepting = isAccepting;
         this.transitions =new ArrayList<Transition>();
