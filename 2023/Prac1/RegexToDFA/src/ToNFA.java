@@ -23,7 +23,7 @@ public class ToNFA {
 
     }
 
-    public void ConvertToNFA(String input){
+    public NFA ConvertToNFA(String input){
 
         for(int i = 0;i<input.length();i++){
             if(input.charAt(i) == '('){
@@ -58,6 +58,31 @@ public class ToNFA {
                             nfaList2.add(nfa);
                             if(nfaList.get(nfaList.size()-1) == nfa){
                                 newList.add(nfa);
+                                if(nfaList2.size()>1){
+                                    NFA subNFA = new NFA();
+        
+                                    for(int j =0 ;j<nfaList2.size()-1;j++){
+                                        nfaList2.get(j).addEpsilonTransition(nfaList2.get(j).endState, nfaList2.get(j+1).startState);
+                                    }
+        
+                                    for(int j =0 ;j<nfaList2.size();j++){
+                                        for(State state : nfaList2.get(j).states){
+                                            subNFA.states.add(state);
+                                        }
+                                    }
+        
+                                    subNFA.startState = nfaList2.get(0).startState;
+                                    subNFA.endState = nfaList2.get(nfaList2.size()-1).endState;
+        
+                                    newList.add(subNFA);
+                                    newList.add(nfa);
+        
+                                }
+                                else{
+                                    newList.add(nfaList2.get(0));
+                                    newList.add(nfa);
+                                }
+                                nfaList2.clear();
                             }
                         }
                         else{
@@ -132,20 +157,32 @@ public class ToNFA {
                 nfa.endState = new State(label2, false);
                 stateCount++;
                 nfa.startState.addTransition(nfa.endState, input.charAt(i));
+                nfa.states.add(nfa.startState);
+                nfa.states.add(nfa.endState);
 
-                if(!stack.empty() && stack.peek() !=null && !stack.peek().isUnion && i != input.length()-1 && input.charAt(i+1) != '*' && input.charAt(i+1) != '?' && input.charAt(i+1) != '+'){
+                if(!stack.empty() && stack.peek() !=null && !stack.peek().isUnion && ( i == input.length()-1 || (input.charAt(i+1) != '*' && input.charAt(i+1) != '?' && input.charAt(i+1) != '+'))){
+                    NFA newNFA = new NFA();
                     NFA prevNFA = stack.pop();
-                    prevNFA.addEpsilonTransition(prevNFA.endState, nfa.startState);
-                    prevNFA.endState = nfa.endState;
-                    prevNFA.states.add(nfa.startState);
-                    prevNFA.states.add(nfa.endState);
-                    stack.push(prevNFA);
+                    newNFA.startState = prevNFA.startState;
+
+                    newNFA.endState = nfa.endState;
+
+
+                    newNFA.addEpsilonTransition(prevNFA.endState, nfa.startState);
+
+                    for(State state : prevNFA.states){
+                        newNFA.states.add(state);
+                    }
+                   
+                    for(State state : nfa.states){
+                        newNFA.states.add(state);
+                    }
+
+
+                    stack.push(newNFA);
                     
                 }
                 else{
-
-                    nfa.states.add(nfa.startState);
-                    nfa.states.add(nfa.endState);
                     stack.push(nfa);
                 }
                
@@ -181,6 +218,29 @@ public class ToNFA {
                         nfaList2.add(nfa);
                         if(nfaList.get(nfaList.size()-1) == nfa){
                             newList.add(nfa);
+                            if(nfaList2.size()>1){
+                                NFA subNFA = new NFA();
+    
+                                for(int i =0 ;i<nfaList2.size()-1;i++){
+                                    nfaList2.get(i).addEpsilonTransition(nfaList2.get(i).endState, nfaList2.get(i+1).startState);
+                                }
+    
+                                for(int i =0 ;i<nfaList2.size();i++){
+                                    for(State state : nfaList2.get(i).states){
+                                        subNFA.states.add(state);
+                                    }
+                                }
+    
+                                subNFA.startState = nfaList2.get(0).startState;
+                                subNFA.endState = nfaList2.get(nfaList2.size()-1).endState;
+    
+                                newList.add(subNFA);
+    
+                            }
+                            else{
+                                newList.add(nfaList2.get(0));
+                            }
+                            nfaList2.clear();
                         }
                     }
                     else{
@@ -240,6 +300,8 @@ public class ToNFA {
             }
         }
 
+        return stack.pop();
+
     }
 
     @Override
@@ -262,14 +324,14 @@ public class ToNFA {
         return list;
     }
 
-    public void printNFA(){
+    public void printNFA(NFA nfa){
             System.out.println("Printing NFA");
-            NFA nfa = stack.pop();
             
             System.out.println("States: ");
 
             for(State state : nfa.states){
                 System.out.println("State: " + state.name);
+                // System.out.println("Is start state: " + state.transitions.size());
             }
 
             System.out.println("Transitions: ");

@@ -7,7 +7,7 @@ class ToDFA{
         this.stateCount = 0;
     }
 
-    public void convertToDFA(NFA nfa){
+    public DFA convertToDFA(NFA nfa){
         List<Character> symbols = new ArrayList<Character>();
         for(State state : nfa.states){
             for(Transition transition : state.transitions){
@@ -26,32 +26,38 @@ class ToDFA{
 
         List<State> closure = new ArrayList<State>();
 
-        dfaStartState.nfaStates = findEpsilonClosure(firstState, closure);
-
+        dfaStartState.nfaStates = findEpsilonClosure(firstState, closure, nfa);
+        
         dfa.states.add(dfaStartState);
 
         boolean isDone = false;
 
         DFAState currentState = dfaStartState;
 
+        dfa = createTheDFA(currentState, isDone, dfa, nfa, closure, symbols);
+
+        return dfa;
     }
 
-    public void createTheDFA(DFAState dfaState, Boolean isDone){
-        if(!isDone){
+    public DFA createTheDFA(DFAState currentState, Boolean isDone, DFA dfa, NFA nfa, List<State> closure, List<Character> symbols){
+        Boolean isThereNew = false; 
+        if(!isDone && !currentState.isVisited){
             for(Character symbol : symbols){
                 List<State> states = new ArrayList<State>();
-                for(State state : dfaStartState.nfaStates){
+                for(State state : nfa.states){
                     for(Transition transition : state.transitions){
-                        if(transition.symbol == symbol && isThere(currentState, transition.from)  && !states.contains(transition.toState)){
+                        if(transition.symbol == symbol && isThere(currentState, transition.from)  && !states.contains(transition.to)){
                             states.add(transition.to);
+
                         }
                     }
                 }
-                if(!states.empty){
+                if(!states.isEmpty()){
+                   
                     closure = new ArrayList<State>();
                     List<State> tempList = new ArrayList<State>();
                     for(State state : states){
-                        tempList = findEpsilonClosure(state, tempList);
+                        tempList = findEpsilonClosure(state, tempList, nfa);
                         for(State tempState : tempList){
                             if(!closure.contains(tempState)){
                                 closure.add(tempState);
@@ -60,14 +66,17 @@ class ToDFA{
 
                     }
 
+
                     boolean isNew = true;
-                    for(DFAState dfaState : dfa.states){
-                       if(dfaState.nfaState.containsAll(closure)){
-                            currentState.addTransition(dfaState, symbol);
+                    for(DFAState dfaStates : dfa.states){
+                       if(dfaStates.nfaStates.containsAll(closure)){
+                            currentState.addTransition(dfaStates, symbol);
                             isNew = false;
                        }
                     }
+
                     if(isNew){
+                        isThereNew = true;
                         DFAState newState = new DFAState("s" + stateCount++, false);
                         newState.nfaStates = closure;
                         currentState.addTransition(newState, symbol);
@@ -77,16 +86,19 @@ class ToDFA{
                 }
                    
             }
-            isDone = true;
-            for(DFA dfaState : dfa.states){
-                if(dfaState.nfaStates.empty){
-                    isDone = false;
+
+            if(isThereNew == false){
+                isDone = true;
+            }
+            else{
+                for(Transition transition : currentState.transitions){
+                    createTheDFA(transition.dfaTo, isDone,dfa , nfa,closure, symbols);
                 }
             }
-            for(Transition transition : dfaState.transitions){
-                createTheDFA(transition.to, isDone);
-            }
+
+            currentState.isVisited = true;
         }
+        return dfa;
     }
 
     public boolean isThere(DFAState dfaState, State nfaState){
@@ -104,17 +116,31 @@ class ToDFA{
             closure.add(state);
             for(Transition transition : state.transitions){
                 if(transition.symbol == '#'){
-                    findEpsilonClosure(transition.toState, closure);
+                    findEpsilonClosure(transition.to, closure, nfa);
                 }
             }
         }
         else{
-            for(State state : nfa.states){
-                state.isVisited = false;
+            for(State loopState : nfa.states){
+                loopState.isVisited = false;
             }
             return closure;
         }
+        for(State loopState : nfa.states){
+            loopState.isVisited = false;
+        }
+        return closure;
         
+    }
+
+    public void printDFA(DFA dfa){
+        System.out.println("Printing DFA");
+        for(DFAState state : dfa.states){
+            System.out.println("State: " + state.name);
+            for(Transition transition : state.transitions){
+                System.out.println("Transition: " + transition.symbol + " to " + transition.dfaTo.name);
+            }
+        }
     }
 }
 

@@ -16,7 +16,7 @@ public class NFA {
 
     public void addEpsilonTransition(State state, State desState){
        Transition outTransition = new Transition(state, desState, '#');
-       this.startState.transitions.add(outTransition);
+       state.transitions.add(outTransition);
     }
 
     public NFA unionNFA(List<NFA> nfaList, int count){

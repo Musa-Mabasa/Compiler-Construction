@@ -17,7 +17,14 @@ public class App {
 
         ToNFA nfa = new ToNFA();
 
-        nfa.ConvertToNFA(input);
-        nfa.printNFA();
+       NFA convertedNFA = nfa.ConvertToNFA(input);
+        nfa.printNFA(convertedNFA);
+
+        System.out.println("=================================================================");
+        System.out.println();
+
+        ToDFA dfa = new ToDFA();
+        DFA convertedDFA = dfa.convertToDFA(convertedNFA);
+        dfa.printDFA(convertedDFA);
     }
 }
