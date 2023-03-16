@@ -1,26 +1,14 @@
 import java.util.*;
-// import java.util.regex.*;
 
 public class ToNFA {
 
     Stack<NFA> stack = new Stack<NFA>();
     int stateCount = 0;
-
-
-    public static void main(String[] args) {
-        // Read in input from console
-       
-
-        
-    }
-
     public  boolean isRegexCorrect(String input){
         // Check if the regex is correct
         // Regex must be a string of characters, numbers, kleene stars, ors, and concatenations
         // Regex can be surrounded by parentheses
       return true;
-
-
     }
 
     public NFA ConvertToNFA(String input){
@@ -49,6 +37,7 @@ public class ToNFA {
                 }
 
                 nfaList = reverseList(nfaList);
+                
 
                 if(isUnion){
                     List<NFA> nfaList2 = new ArrayList<NFA>();
@@ -57,7 +46,6 @@ public class ToNFA {
                         if(!nfa.isUnion){
                             nfaList2.add(nfa);
                             if(nfaList.get(nfaList.size()-1) == nfa){
-                                newList.add(nfa);
                                 if(nfaList2.size()>1){
                                     NFA subNFA = new NFA();
         
@@ -75,12 +63,11 @@ public class ToNFA {
                                     subNFA.endState = nfaList2.get(nfaList2.size()-1).endState;
         
                                     newList.add(subNFA);
-                                    newList.add(nfa);
+                                    
         
                                 }
                                 else{
                                     newList.add(nfaList2.get(0));
-                                    newList.add(nfa);
                                 }
                                 nfaList2.clear();
                             }
@@ -217,7 +204,6 @@ public class ToNFA {
                     if(!nfa.isUnion){
                         nfaList2.add(nfa);
                         if(nfaList.get(nfaList.size()-1) == nfa){
-                            newList.add(nfa);
                             if(nfaList2.size()>1){
                                 NFA subNFA = new NFA();
     
@@ -299,20 +285,12 @@ public class ToNFA {
                 stack.push(nfa);
             }
         }
-
+        stack.peek().endState.isAccepting = true;
         return stack.pop();
 
     }
 
-    @Override
-    public String toString() {
-
-        // Print the nfa
-
-
-        
-        return super.toString();
-    }
+   
 
     public List<NFA> reverseList(List<NFA> list){
         for(int i = 0;i<list.size()/2;i++){
@@ -330,7 +308,14 @@ public class ToNFA {
             System.out.println("States: ");
 
             for(State state : nfa.states){
-                System.out.println("State: " + state.name);
+                System.out.print("State: " + state.name + " ");
+                if(state.isAccepting){
+                    System.out.println("Accepting");
+                }
+                else{
+                    System.out.println();
+                }
+
                 // System.out.println("Is start state: " + state.transitions.size());
             }
 
