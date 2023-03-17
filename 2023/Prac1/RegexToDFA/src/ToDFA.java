@@ -27,6 +27,9 @@ class ToDFA{
         List<State> closure = new ArrayList<State>();
 
         dfaStartState.nfaStates = findEpsilonClosure(firstState, closure, nfa);
+        for(State state: nfa.states){
+            state.isVisited = false;
+        }
         
         dfa.states.add(dfaStartState);
 
@@ -36,11 +39,13 @@ class ToDFA{
 
         dfa = createTheDFA(currentState, isDone, dfa, nfa, closure, symbols);
 
+        addAccepting(dfa);
+
         return dfa;
     }
 
     public DFA createTheDFA(DFAState currentState, Boolean isDone, DFA dfa, NFA nfa, List<State> closure, List<Character> symbols){
-        Boolean isThereNew = false; 
+        System.out.println("Current State: " + currentState.name);
         if(!isDone && !currentState.isVisited){
             for(Character symbol : symbols){
                 List<State> states = new ArrayList<State>();
@@ -58,6 +63,9 @@ class ToDFA{
                     List<State> tempList = new ArrayList<State>();
                     for(State state : states){
                         tempList = findEpsilonClosure(state, tempList, nfa);
+                        for(State nfastate: nfa.states){
+                            nfastate.isVisited = false;
+                        }
                         for(State tempState : tempList){
                             if(!closure.contains(tempState)){
                                 closure.add(tempState);
@@ -72,31 +80,34 @@ class ToDFA{
                        if(dfaStates.nfaStates.containsAll(closure)){
                             currentState.addTransition(dfaStates, symbol);
                             isNew = false;
+                            break;
                        }
                     }
 
                     if(isNew){
-                        isThereNew = true;
                         DFAState newState = new DFAState("s" + stateCount++, false);
                         newState.nfaStates = closure;
                         currentState.addTransition(newState, symbol);
                         dfa.states.add(newState);
                     }
 
+                    for(Transition transition : currentState.transitions){
+                        System.out.println("Transition inside: " + transition.symbol + " to " + transition.dfaTo.name);
+                        System.out.println();
+                    }
+
                 }
                    
             }
-
-            if(isThereNew == false){
-                isDone = true;
-            }
-            else{
-                for(Transition transition : currentState.transitions){
-                    createTheDFA(transition.dfaTo, isDone,dfa , nfa,closure, symbols);
-                }
-            }
-
             currentState.isVisited = true;
+            
+
+            for(Transition transition : currentState.transitions){
+                System.out.println();
+                createTheDFA(transition.dfaTo, isDone,dfa , nfa,closure, symbols);
+            }
+
+            
         }
         return dfa;
     }
@@ -120,23 +131,29 @@ class ToDFA{
                 }
             }
         }
-        else{
-            for(State loopState : nfa.states){
-                loopState.isVisited = false;
-            }
-            return closure;
-        }
-        for(State loopState : nfa.states){
-            loopState.isVisited = false;
-        }
         return closure;
         
+    }
+
+    public void addAccepting(DFA dfa){
+        for(DFAState state: dfa.states){
+            for(State nfastate : state.nfaStates){
+                if(nfastate.isAccepting){
+                    state.isAccepting = true;
+                    break;
+                }
+            }
+        }
     }
 
     public void printDFA(DFA dfa){
         System.out.println("Printing DFA");
         for(DFAState state : dfa.states){
-            System.out.println("State: " + state.name);
+            System.out.print("State: " + state.name);
+            if(state.isAccepting){
+                System.out.print(" Accepting");
+            }
+            System.out.println();
             for(Transition transition : state.transitions){
                 System.out.println("Transition: " + transition.symbol + " to " + transition.dfaTo.name);
             }

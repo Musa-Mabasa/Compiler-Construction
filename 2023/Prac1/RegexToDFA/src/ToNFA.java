@@ -10,7 +10,7 @@ public class ToNFA {
         // Regex can be surrounded by parentheses
       return true;
     }
-
+    
     public NFA ConvertToNFA(String input){
 
         for(int i = 0;i<input.length();i++){
@@ -38,7 +38,6 @@ public class ToNFA {
 
                 nfaList = reverseList(nfaList);
                 
-
                 if(isUnion){
                     List<NFA> nfaList2 = new ArrayList<NFA>();
                     List<NFA> newList = new ArrayList<NFA>();
@@ -107,8 +106,26 @@ public class ToNFA {
                     stack.push(unionNFA);
                 }
                 else{
-                    for(NFA nfas : nfaList){
-                        stack.push(nfas);
+                    if(nfaList.size()==1){
+                        stack.push(nfaList.get(0));
+                    }
+                    else if(nfaList.size()>1){
+                        NFA subNFA = new NFA();
+    
+                        for(int j =0 ;j<nfaList.size()-1;j++){
+                            nfaList.get(j).addEpsilonTransition(nfaList.get(j).endState, nfaList.get(j+1).startState);
+                        }
+
+                        for(int j =0 ;j<nfaList.size();j++){
+                            for(State state : nfaList.get(j).states){
+                                subNFA.states.add(state);
+                            }
+                        }
+
+                        subNFA.startState = nfaList.get(0).startState;
+                        subNFA.endState = nfaList.get(nfaList.size()-1).endState;
+
+                        stack.push(subNFA);
                     }
                 }
             }
