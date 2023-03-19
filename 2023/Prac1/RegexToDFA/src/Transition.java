@@ -1,3 +1,8 @@
+/*
+ * This is a declaration that states that I've shared the following code with a few other students as it
+ * is the RE -> NFA part of the practical. The rest of the practical in unique to me.
+ */
+
 public class Transition {
 
     public State from;
