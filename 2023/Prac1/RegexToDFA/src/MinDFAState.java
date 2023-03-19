@@ -11,6 +11,7 @@ public class MinDFAState {
         this.name = name;
         this.isAccepting = isAccepting;
         this.transitions =new ArrayList<Transition>();
+        this.dfaStates = new ArrayList<DFAState>();
         this.isVisited = false;
     }
 

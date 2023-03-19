@@ -45,7 +45,6 @@ class ToDFA{
     }
 
     public DFA createTheDFA(DFAState currentState, Boolean isDone, DFA dfa, NFA nfa, List<State> closure, List<Character> symbols){
-        System.out.println("Current State: " + currentState.name);
         if(!isDone && !currentState.isVisited){
             for(Character symbol : symbols){
                 List<State> states = new ArrayList<State>();
@@ -63,6 +62,7 @@ class ToDFA{
                     List<State> tempList = new ArrayList<State>();
                     for(State state : states){
                         tempList = findEpsilonClosure(state, tempList, nfa);
+
                         for(State nfastate: nfa.states){
                             nfastate.isVisited = false;
                         }
@@ -77,12 +77,13 @@ class ToDFA{
 
                     boolean isNew = true;
                     for(DFAState dfaStates : dfa.states){
-                       if(dfaStates.nfaStates.containsAll(closure)){
+                       if(isTheSame(dfaStates.nfaStates, closure)){
                             currentState.addTransition(dfaStates, symbol);
                             isNew = false;
                             break;
                        }
                     }
+
 
                     if(isNew){
                         DFAState newState = new DFAState("s" + stateCount++, false);
@@ -91,10 +92,6 @@ class ToDFA{
                         dfa.states.add(newState);
                     }
 
-                    for(Transition transition : currentState.transitions){
-                        System.out.println("Transition inside: " + transition.symbol + " to " + transition.dfaTo.name);
-                        System.out.println();
-                    }
 
                 }
                    
@@ -103,7 +100,6 @@ class ToDFA{
             
 
             for(Transition transition : currentState.transitions){
-                System.out.println();
                 createTheDFA(transition.dfaTo, isDone,dfa , nfa,closure, symbols);
             }
 
@@ -133,6 +129,18 @@ class ToDFA{
         }
         return closure;
         
+    }
+
+    public boolean isTheSame(List<State> list1, List<State> list2){
+        if(list1.size() != list2.size()){
+            return false;
+        }
+        for(State state : list1){
+            if(!list2.contains(state)){
+                return false;
+            }
+        }
+        return true;
     }
 
     public void addAccepting(DFA dfa){
