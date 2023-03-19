@@ -9,12 +9,6 @@ public class ToNFA {
 
     Stack<NFA> stack = new Stack<NFA>();
     int stateCount = 0;
-    public  boolean isRegexCorrect(String input){
-        // Check if the regex is correct
-        // Regex must be a string of characters, numbers, kleene stars, ors, and concatenations
-        // Regex can be surrounded by parentheses
-      return true;
-    }
     
     public NFA ConvertToNFA(String input){
 

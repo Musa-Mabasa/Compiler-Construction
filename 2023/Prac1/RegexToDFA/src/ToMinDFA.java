@@ -1,3 +1,5 @@
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 
@@ -183,19 +185,58 @@ public class ToMinDFA {
     public void printMinDFA(MinDFA minDFA){
         System.out.println("<states>");
         for(MinDFAState minDFAState: minDFA.states){
-            System.out.println("<"+minDFAState.name+">");
+            System.out.print("<"+minDFAState.name+"");
+            if(minDFAState.isAccepting){
+                System.out.print(" accepting=\"true\"");
+            }
+            System.out.println("/>");
         }
         System.out.println("</states>");
         System.out.println("<transitions>");
         for(MinDFAState minDFAState: minDFA.states){
             for(Transition transition: minDFAState.transitions){
                 System.out.println("\t<"+transition.minDfaFrom.name+">");
-                System.out.println("\t\t\s\s\s<"+transition.minDfaTo.name+">"+transition.symbol+"</"+transition.minDfaTo.name+">");
+                System.out.println("\t\s\s\s<"+transition.minDfaTo.name+">"+transition.symbol+"</"+transition.minDfaTo.name+">");
                 System.out.println("\t</"+transition.minDfaFrom.name+">");
 
             }
         }
         System.out.println("</transitions>");
+    
+        try {
+            FileWriter writer = new FileWriter("minDFA.xml");
+
+            writer.write("<MinDFA>\n");
+            writer.write("<states>\n");
+        for(MinDFAState minDFAState: minDFA.states){
+            writer.write("<"+minDFAState.name+"");
+            if(minDFAState.isAccepting){
+                writer.write(" accepting=\"true\"");
+            }
+            writer.write("/>\n");
+        }
+            writer.write("</states>\n");
+            writer.write("<transitions>\n");
+            for(MinDFAState minDFAState: minDFA.states){
+                for(Transition transition: minDFAState.transitions){
+                    writer.write("\t<"+transition.minDfaFrom.name+">\n");
+                    writer.write("\t\t\s\s\s<"+transition.minDfaTo.name+">"+transition.symbol+"</"+transition.minDfaTo.name+">\n");
+                    writer.write("\t</"+transition.minDfaFrom.name+">\n");
+
+                }
+            }
+            writer.write("</transitions>\n");
+            writer.write("</MinDFA>\n");
+
+            writer.close();
+
+
+
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
     }
     
