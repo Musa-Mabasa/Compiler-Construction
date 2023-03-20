@@ -7,6 +7,8 @@ public class App {
         String input = scanner.nextLine();
         scanner.close();
 
+        input = input.replaceAll("\\s+","");
+
         if(isRegexCorrect(input)){
             System.out.println("\u001B[32mRegex is correct\u001B[0m");
             ToNFA nfa = new ToNFA();
@@ -48,6 +50,10 @@ public class App {
             }
         }
         if(numoOpenBrackets != numClosedBrackets){
+            return false;
+        }
+
+        if(input.charAt(0) == '*' || input.charAt(0) == '|' || input.charAt(0) == '?' || input.charAt(0) == '+'){
             return false;
         }
 

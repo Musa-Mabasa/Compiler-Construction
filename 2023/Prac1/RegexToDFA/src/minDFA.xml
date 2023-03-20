@@ -2,10 +2,20 @@
 <states>
 <A/>
 <B accepting="true"/>
+<C/>
 </states>
 <transitions>
 	<A>
-		   <B>a</B>
+		   <C>a</C>
 	</A>
+	<A>
+		   <C>b</C>
+	</A>
+	<A>
+		   <C>c</C>
+	</A>
+	<C>
+		   <B>d</B>
+	</C>
 </transitions>
 </MinDFA>
