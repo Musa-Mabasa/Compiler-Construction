@@ -221,7 +221,7 @@ public class ToMinDFA {
             for(MinDFAState minDFAState: minDFA.states){
                 for(Transition transition: minDFAState.transitions){
                     writer.write("\t<"+transition.minDfaFrom.name+">\n");
-                    writer.write("\t\t\s\s\s<"+transition.minDfaTo.name+">"+transition.symbol+"</"+transition.minDfaTo.name+">\n");
+                    writer.write("\t\s\s\s<"+transition.minDfaTo.name+">"+transition.symbol+"</"+transition.minDfaTo.name+">\n");
                     writer.write("\t</"+transition.minDfaFrom.name+">\n");
 
                 }

@@ -3,19 +3,35 @@
 <A/>
 <B accepting="true"/>
 <C/>
+<D/>
 </states>
 <transitions>
 	<A>
-		   <C>a</C>
+	   <C>a</C>
 	</A>
 	<A>
-		   <C>b</C>
+	   <A>b</A>
 	</A>
-	<A>
-		   <C>c</C>
-	</A>
+	<B>
+	   <B>c</B>
+	</B>
 	<C>
-		   <B>d</B>
+	   <C>a</C>
 	</C>
+	<C>
+	   <D>b</D>
+	</C>
+	<C>
+	   <B>c</B>
+	</C>
+	<D>
+	   <C>a</C>
+	</D>
+	<D>
+	   <A>b</A>
+	</D>
+	<D>
+	   <B>c</B>
+	</D>
 </transitions>
 </MinDFA>
