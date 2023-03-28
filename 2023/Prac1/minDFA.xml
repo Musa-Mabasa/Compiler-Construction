@@ -7,8 +7,8 @@
 	<A>
 	   <B>a</B>
 	</A>
-	<B>
-	   <B>a</B>
-	</B>
+	<A>
+	   <B>b</B>
+	</A>
 </transitions>
 </MinDFA>
