@@ -6,14 +6,15 @@ import java.util.*;
 public class Lexer {
 
     private int id = 0;
+    private int row = 1;
+    private int col = 1;
 
 
     public List<Token> tokenise(){
         List<Token> tokens = new ArrayList<Token>();
-        int row = 1;
-        int col = 0;
+        
         String input = "";
-        File file = new File("code.txt");
+        File file = new File("/home/musa/Desktop/COS 341/2023/Compiler-Construction/2023/Prac2/Parser/src/Lexer/code.txt");
         Scanner reader = null;
         try {
             reader = new Scanner(file);
@@ -35,7 +36,7 @@ public class Lexer {
             }
             else if(input.charAt(i) == '\n'){
                 row++;
-                col = 0;
+                col = 1;
                 continue;
             }
             else if(input.charAt(i) == ','){
@@ -96,8 +97,40 @@ public class Lexer {
                 tokens.add(token);
             }
             else if(input.charAt(i) == ':'){
-                Token token = new Token(id, "Symbol", ":");
-                tokens.add(token);
+                i++;
+                if(i<input.length()-1){
+                    if(input.charAt(i) == '='){
+                        Token token = new Token(id, "Symbol", ":=");
+                        tokens.add(token);
+                    }
+                    else if(input.charAt(i) == '\n'){
+                        i++;
+                        row++;
+                        col = 1;
+                        if(i<input.length()-1){
+                            if(input.charAt(i) == '='){
+                                Token token = new Token(id, "Symbol", ":=");
+                                tokens.add(token);
+                            }
+                            else{
+                                System.out.println("\u001B[31mError\u001B[0m: Invalid symbol at line " + row + " column " + col +"." );
+                                System.exit(0);
+                            }
+                        }
+                        else{
+                            System.out.println("\u001B[31mError\u001B[0m: Invalid symbol at line " + row + " column " + col +"." );
+                            System.exit(0);
+                        }
+                    }
+                    else{
+                        System.out.println("\u001B[31mError\u001B[0m: Invalid symbol at line " + row + " column " + col +"." );
+                        System.exit(0);
+                    }
+                } 
+                else{
+                    System.out.println("\u001B[31mError\u001B[0m: Invalid symbol at line " + row + " column " + col +"." );
+                    System.exit(0);
+                }
             }
             else if(input.charAt(i) == '='){
                 Token token = new Token(id, "Symbol", "=");
@@ -143,6 +176,10 @@ public class Lexer {
                 Token token = new Token(id, "Symbol", "a");
                 tokens.add(token);
             }
+            else if(input.charAt(i) == ','){
+                Token token = new Token(id, "Symbol", ",");
+                tokens.add(token);
+            }
             else if(input.charAt(i) == 'm'){
                 Token token = new Token(id, "Symbol", "m");
                 tokens.add(token);
@@ -151,9 +188,109 @@ public class Lexer {
                 Token token = new Token(id, "Symbol", "d");
                 tokens.add(token);
             }
+            else if(input.charAt(i) == '-'){
+                Token token = new Token(id, "Symbol", "-");
+                tokens.add(token);
+            }
+            else if(input.charAt(i) == '.'){
+                Token token = new Token(id, "Symbol", ".");
+                tokens.add(token);
+            }
+            else if(input.charAt(i) == 'T'){
+                Token token = new Token(id, "Symbol", "T");
+                tokens.add(token);
+            }
+            else if(input.charAt(i) == 'F'){
+                Token token = new Token(id, "Symbol", "F");
+                tokens.add(token);
+            }
+            else if(input.charAt(i) == '^'){
+                Token token = new Token(id, "Symbol", "^");
+                tokens.add(token);
+            }
+            else if(input.charAt(i) == 'v'){
+                Token token = new Token(id, "Symbol", "v");
+                tokens.add(token);
+            }
+            else if(input.charAt(i) == '!'){
+                Token token = new Token(id, "Symbol", "!");
+                tokens.add(token);
+            }
+            else if(input.charAt(i) == 'E'){
+                Token token = new Token(id, "Symbol", "E");
+                tokens.add(token);
+            }
+            else if(input.charAt(i) == '<'){
+                Token token = new Token(id, "Symbol", "<");
+                tokens.add(token);
+            }
+            else if(input.charAt(i) == '>'){
+                Token token = new Token(id, "Symbol", ">");
+                tokens.add(token);
+            }
+            else if(input.charAt(i) == '\"' || input.charAt(i) == '*' ){
+                String shortString = checkStringOrComment(input, i);
+                Token token = new Token(id, "Symbol", shortString);
+                tokens.add(token);
+                i+=16;
+            }
+            else if(input.charAt(i) == 'g'){
+                Token token = new Token(id, "Symbol", "g");
+                tokens.add(token);
+            }
+            else if(input.charAt(i) == 'o'){
+                Token token = new Token(id, "Symbol", "o");
+                tokens.add(token);
+            }
+            else if(input.charAt(i) == 'r'){
+                Token token = new Token(id, "Symbol", "r");
+                tokens.add(token);
+            }
+            else{
+                System.out.println("\u001B[31mError\u001B[0m: Invalid symbol at line " + row + " column " + col +"." );
+                System.exit(0);
+            }
             
         }
         
         return tokens;
     }
+
+    private String checkStringOrComment(String input, int i){
+        int count = 0;
+        String retString = "";
+        boolean isString=  true;
+
+        if(input.charAt(i) == '*'){
+            isString = false;
+        }
+        i++;
+        while(input.charAt(i) != '\"' && input.charAt(i) != '*' ){
+            System.out.println(input.charAt(i));
+            if(input.charAt(i) == '\n'){
+                System.out.println("ins "+input.charAt(i));
+                System.out.println("\u001B[31mError\u001B[0m: Invalid string at line " + row + " column " + col );
+                System.exit(0);
+            }
+            retString+=input.charAt(i);
+            count++;
+            i++;
+        }
+        System.out.println("count "+count);
+        if(count == 15){
+            return retString;
+        }
+        else{
+            if(isString){
+                System.out.println("\u001B[31mError\u001B[0m: Invalid string at line " + row + " column " + col + ", string should be 15 characters");
+                System.exit(0);
+            }
+            else{
+                System.out.println("\u001B[31mError\u001B[0m: Invalid comment at line " + row + " column " + col + ", comment should be 15 characters");
+                System.exit(0);
+            }
+            
+            return "";
+        }
+    }   
 }
