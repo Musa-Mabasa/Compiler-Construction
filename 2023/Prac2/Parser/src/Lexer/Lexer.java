@@ -230,8 +230,15 @@ public class Lexer {
             }
             else if(input.charAt(i) == '\"' || input.charAt(i) == '*' ){
                 String shortString = checkStringOrComment(input, i);
-                Token token = new Token(id, "Symbol", shortString);
-                tokens.add(token);
+                if(input.charAt(i) == '\"'){
+                    Token token = new Token(id, "String", shortString);
+                    tokens.add(token);
+                }
+                else{
+                    Token token = new Token(id, "Comment", shortString);
+                    tokens.add(token);
+                }
+                
                 i+=16;
             }
             else if(input.charAt(i) == 'g'){
