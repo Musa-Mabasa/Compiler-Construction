@@ -506,6 +506,14 @@ class Parser{
                     return false;
                 }
             }
+            else{
+                // parser failed
+                return false;
+            }
+        }
+        else{
+            // parser failed
+            return false;
         }
     }
 
@@ -513,6 +521,20 @@ class Parser{
         Node commentNode = new Node(id, "Non-Terminal", "COMMENT");
         parent.children.add(commentNode);
         if(tokens.get(index).getType() == "Comment"){
+            return true;
+        }
+        else if(tokens.get(index).getContent() == ";" || tokens.get(index).getContent() == "}" || tokens.get(index).getContent() == ","){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
+    private Boolean parseSTRI(Node parent){
+        Node striNode = new Node(id, "Non-Terminal", "STRI");
+        parent.children.add(striNode);
+        if(tokens.get(index).getType() == "String"){
             return true;
         }
         else{
@@ -577,6 +599,30 @@ class Parser{
             boolvarNode.children.add(bNode);
             index++;
             Boolean digits = parseDIGITS(boolvarNode);
+            if(digits){
+                // parser passed
+                return true;
+            }
+            else{
+                // parser failed
+                return false;
+            }
+        }
+        else{
+            // parser failed
+            return false;
+        }
+    }
+
+    private Boolean parseSTRINGV(Node parent){
+        Node stringvNode = new Node(id++, "Non-Terminal", "STRINGV");
+        parent.children.add(stringvNode);
+
+        if(tokens.get(index).getContent() == "s"){
+            Node sNode = new Node(id++, "Terminal", "s");
+            stringvNode.children.add(sNode);
+            index++;
+            Boolean digits = parseDIGITS(stringvNode);
             if(digits){
                 // parser passed
                 return true;
@@ -723,7 +769,367 @@ class Parser{
     }
 
     private Boolean parseBOOLEXPR(Node parent){
-        // TODO: implement this method APR 8
+        Node boolexprNode = new Node(id++, "Non-Terminal", "BOOLEXPR");
+        parent.children.add(boolexprNode);
+
+        if(tokens.get(index).getContent() == "b" || tokens.get(index).getContent() == "T" || tokens.get(index).getContent() == "F" || tokens.get(index).getContent() == "^" || tokens.get(index).getContent() == "v" || tokens.get(index).getContent() == "!" ){
+            Boolean logic = parseLOGIC(boolexprNode);
+            if(logic){
+                // parser passed
+                return true;
+            }
+            else{
+                // parser failed
+                return false;
+            }
+        }
+        else if(tokens.get(index).getContent() == "E" || tokens.get(index).getContent() == "<" || tokens.get(index).getContent() == ">"){
+            Boolean cmpr = parseCMPR(boolexprNode);
+            if(cmpr){
+                // parser passed
+                return true;
+            }
+            else{
+                // parser failed
+                return false;
+            }
+        }
+        else{
+            // parser failed
+            return false;
+        }
+    }
+
+    private Boolean parseDIGITS(Node parent){
+        Node digitsNode = new Node(id++, "Non-Terminal", "DIGITS");
+        parent.children.add(digitsNode);
+
+        if(isDigit(tokens.get(index).getContent())){
+            Boolean d = parseD(digitsNode);
+            if(d){
+                index++;
+                if(isDigit(tokens.get(index).getContent())){
+                   Boolean more = parseMORE(digitsNode);
+                    if(more){
+                        // parser passed
+                        return true;
+                    }
+                    else{
+                        // parser failed
+                        return false;
+                    }
+                }
+                else if(tokens.get(index).getContent() == "." ||tokens.get(index).getContent() == ")" || tokens.get(index).getContent() == "," || tokens.get(index).getContent() == "*" || tokens.get(index).getContent() == "}"){
+                    // parser passed
+                    return true;
+                }
+                else{
+                    // parser failed
+                    return false;
+                }
+            }
+            else{
+                // parser failed
+                return false;
+            }
+        }
+        else{
+            // parser passed
+            return true;
+        }
+    }
+
+    private Boolean parseELSE(Node parent){
+        Node elseNode = new Node(id++, "Non-Terminal", "ELSE");
+        parent.children.add(elseNode);
+
+        if(tokens.get(index).getContent() == "e"){
+            Node eNode = new Node(id++, "Terminal", "e");
+            elseNode.children.add(eNode);
+            index++;
+            if(tokens.get(index).getContent() == "{"){
+                Node openNode = new Node(id++, "Terminal", "{");
+                elseNode.children.add(openNode);
+                index++;
+                Boolean algo = parseALGO(elseNode);
+                if(algo){
+                    index++;
+                    if(tokens.get(index).getContent() == "}"){
+                        Node closeNode = new Node(id++, "Terminal", "}");
+                        elseNode.children.add(closeNode);
+                        // parser passed
+                        return true;
+                    }
+                    else{
+                        // parser failed
+                        return false;
+                    }
+                }
+                else{
+                    // parser failed
+                    return false;
+                }
+            }
+            else{
+                // parser failed
+                return false;
+            }
+        }
+        else if(tokens.get(index).getContent() == "*" || tokens.get(index).getContent() == "}" || tokens.get(index).getContent() == "," || tokens.get(index).getContent() == ";" ){
+            // parser passed
+            return true;
+        }
+        else{
+            // parser failed
+            return false;
+        }
+    }
+
+    private Boolean parseDECNUM(Node parent){
+        Node decnumNode = new Node(id++, "Non-Terminal", "DECNUM");
+        parent.children.add(decnumNode);
+
+        if(tokens.get(index).getContent() == "0.00"){
+            Node zeroNode = new Node(id++, "Terminal", "0.00");
+            decnumNode.children.add(zeroNode);
+            // parser passed
+            return true;
+        }
+        else if(tokens.get(index).getContent() == "-"){
+           Boolean neg = parseNEG(decnumNode);
+            if(neg){
+                // parser passed
+                return true;
+            }
+            else{
+                // parser failed
+                return false;
+            }
+        }
+        else if(isDigit(tokens.get(index).getContent()) && tokens.get(index).getContent() != "0"){
+            Boolean pos = parsePOS(decnumNode);
+            if(pos){
+                // parser passed
+                return true;
+            }
+            else{
+                // parser failed
+                return false;
+            }
+        }
+        else{
+            // parser failed
+            return false;
+        }
+    }
+
+    private Boolean parseLOGIC(Node parent){
+        Node logicNode = new Node(id++, "Non-Terminal", "LOGIC");
+        parent.children.add(logicNode);
+
+        if(tokens.get(index).getContent() == "b"){
+            Boolean boolvar = parseBOOLVAR(logicNode);
+            if(boolvar){
+                // parser passed
+                return true;
+            }
+            else{
+                // parser failed
+                return false;
+            }
+        }
+        else if(tokens.get(index).getContent() == "T" || tokens.get(index).getContent() == "F"){
+            Node boolNode = new Node(id++, "Terminal", tokens.get(index).getContent());
+            logicNode.children.add(boolNode);
+
+            // parser passed
+            return true;
+        }
+        else if(tokens.get(index).getContent() == "^" || tokens.get(index).getContent() == "v"){
+            Node node = new Node(id++, "Terminal", tokens.get(index).getContent() );
+            logicNode.children.add(node);
+            index++;
+            if(tokens.get(index).getContent() == "("){
+                Node openNode = new Node(id++, "Terminal", "(");
+                logicNode.children.add(openNode);
+                index++;
+                Boolean numexpr = parseBOOLEXPR(logicNode);
+                if(numexpr){
+                    index++;
+                    if(tokens.get(index).getContent() == ","){
+                        Node commaNode = new Node(id++, "Terminal", ",");
+                        logicNode.children.add(commaNode);
+                        index++;
+                        Boolean numexpr2 = parseBOOLEXPR(logicNode);
+                        if(numexpr2){
+                            index++;
+                            if(tokens.get(index).getContent() == ")"){
+                                Node closeNode = new Node(id++, "Terminal", ")");
+                                logicNode.children.add(closeNode);
+                                index++;
+                                // parser passed
+                                return true;
+                            }
+                            else{
+                                // parser failed
+                                return false;
+                            }
+                        }
+                        else{
+                            // parser failed
+                            return false;
+                        }
+                    }
+                    else{
+                        // parser failed
+                        return false;
+                    }
+                }
+                else{
+                    // parser failed
+                    return false;
+                }   
+            }
+            else{
+                // parser failed
+                return false;
+            }
+        }
+        else if(tokens.get(index).getContent() == "!"){
+            Node exNode = new Node(id++, "Terminal", "!");
+            logicNode.children.add(exNode);
+            index++;
+            if(tokens.get(index).getContent() == "("){
+                Node openNode = new Node(id++, "Terminal", "(");
+                logicNode.children.add(openNode);
+                index++;
+                Boolean numexpr = parseBOOLEXPR(logicNode);
+                if(numexpr){
+                    index++;
+                    if(tokens.get(index).getContent() == ")"){
+                        Node closeNode = new Node(id++, "Terminal", ")");
+                        logicNode.children.add(closeNode);
+                        // parser passed
+                        return true;
+                    }
+                    else{
+                        // parser failed
+                        return false;
+                    }
+                }
+                else{
+                    // parser failed
+                    return false;
+                }
+            }
+            else{
+                // parser failed
+                return false;
+            }
+        }
+        else{
+            // parser failed
+            return false;
+        }
+
+    }
+
+    private Boolean parseCMPR(Node parent){
+        Node cmprNode = new Node(id++, "Non-Terminal", "CMPR");
+        parent.children.add(cmprNode);
+
+        if(tokens.get(index).getContent() == "E" || tokens.get(index).getContent() == "<" || tokens.get(index).getContent() == ">"){
+            Node node = new Node(id++, "Terminal", tokens.get(index).getContent() );
+            cmprNode.children.add(node);
+            index++;
+            if(tokens.get(index).getContent() == "("){
+                Node openNode = new Node(id++, "Terminal", "(");
+                cmprNode.children.add(openNode);
+                index++;
+                Boolean numexpr = parseNUMEXPR(cmprNode);
+                if(numexpr){
+                    index++;
+                    if(tokens.get(index).getContent() == ","){
+                        Node commaNode = new Node(id++, "Terminal", ",");
+                        cmprNode.children.add(commaNode);
+                        index++;
+                        Boolean numexpr2 = parseNUMEXPR(cmprNode);
+                        if(numexpr2){
+                            index++;
+                            if(tokens.get(index).getContent() == ")"){
+                                Node closeNode = new Node(id++, "Terminal", ")");
+                                cmprNode.children.add(closeNode);
+                                index++;
+                                // parser passed
+                                return true;
+                            }
+                            else{
+                                // parser failed
+                                return false;
+                            }
+                        }
+                        else{
+                            // parser failed
+                            return false;
+                        }
+                    }
+                    else{
+                        // parser failed
+                        return false;
+                    }
+                }
+                else{
+                    // parser failed
+                    return false;
+                }   
+            }
+            else{
+                // parser failed
+                return false;
+            }
+        }
+        else{
+            // parser failed
+            return false;
+        }
+    }
+
+    private Boolean parseD(Node parent){
+        Node dNode = new Node(id++, "Non-Terminal", "D");
+        parent.children.add(dNode);
+
+        if(isDigit(tokens.get(index).getContent())){
+            Node node = new Node(id++, "Terminal", tokens.get(index).getContent());
+            dNode.children.add(node);
+            // parser passed
+            return true; 
+        }
+        else{
+            // parser failed
+            return false;
+        }
+    }
+
+    private Boolean parseMORE(Node parent){
+        // TODO - check if this is correct
+        Node moreNode = new Node(id++, "Non-Terminal", "MORE");
+        parent.children.add(moreNode);
+
+        if(isDigit(tokens.get(index).getContent())){
+            Boolean digits = parseDIGITS(moreNode);
+            if(digits){
+                // parser passed
+                return true;
+            }
+            else{
+                // parser failed
+                return false;
+            }
+        }
+        else{
+            // parser passed
+            return true;
+        }
     }
 
     private Boolean isDigit(String str){
