@@ -1,7 +1,5 @@
 import java.util.*;
 
-import Lexer.Lexer;
-import Lexer.Token;
 
 class Parser{
     private List<Token> tokens;
@@ -14,16 +12,27 @@ class Parser{
     }
 
     public void parse(){
-        parseProgr();
+        parsePROGR(null);
     }
 
-    private Boolean parseProgr(){
+    private Boolean parsePROGR(Node parent){
+        System.out.println("Parsing PROGR");
         Node startNode = new Node(id++, "Non-Terminal", "PROGR");
+        if(parent != null){
+            parent.children.add(startNode);
+        }
         Boolean algo = parseALGO(startNode);
         if(algo){
+            index++;
+            if(index>=tokens.size()){
+                System.out.println("parser is proper");
+                return true;
+            }
+
             Boolean pd = parsePROCDEFS(startNode);
             if(pd){
                 // parser passed
+                System.out.println("parser is proper");
                 return true;
             }
             else{
@@ -38,13 +47,16 @@ class Parser{
     }
 
     private Boolean parseALGO(Node parent){
-
+        System.out.println("Parsing ALGO");
         Node algoNode = new Node(id++, "Non-Terminal", "ALGO");
         parent.children.add(algoNode);
 
         Boolean instr = parseINSTR(algoNode);
         index++;
         if(instr){
+            if(index >= tokens.size()){
+                return true;
+            }
             Boolean comm = parseCOMMENT(algoNode);
             index++;
             if(comm){
@@ -69,7 +81,95 @@ class Parser{
         }
     }
 
+    private Boolean parsePROCDEFS(Node parent){
+        System.out.println("Parsing PROCDEFS");
+        Node procdefsNode = new Node(id++, "Non-Terminal", "PROCDEFS");
+        parent.children.add(procdefsNode);
+
+        if(tokens.get(index).getContent() == ","){
+            Node comma = new Node(id++, "Terminal", ",");
+            procdefsNode.children.add(comma);
+            Boolean proc = parsePROC(procdefsNode);
+            if(proc){
+                index++;
+                Boolean procdefs = parsePROCDEFS(procdefsNode);
+                if(procdefs){
+                    // parser passed
+                    return true;
+                }
+                else{
+                    // parser failed
+                    return false;
+                }
+            }
+            else{
+                // parser failed
+                return false;
+            }
+        }
+        else if(tokens.size() == index || tokens.get(index).getContent() == "}"){
+            // parser passed
+            return true;
+        }
+        else{
+            // parser failed
+            return false;
+        }
+    }
+
+    private Boolean parsePROC(Node parent){
+        System.out.println("Parsing PROC");
+        Node procNode = new Node(id++, "Non-Terminal", "PROC");
+        parent.children.add(procNode);
+
+        if(tokens.get(index).getContent() == "p"){
+            Node pNode = new Node(id++, "Terminal", "p");
+            procNode.children.add(pNode);
+            index++;
+            Boolean digits = parseDIGITS(parent);
+            if(digits){
+                index++;
+                if(tokens.get(index).getContent() == "{"){
+                    Node openBrace = new Node(id++, "Terminal", "{");
+                    procNode.children.add(openBrace);
+                    index++;
+                    Boolean progr = parsePROGR(procNode);
+                    if(progr){
+                        index++;
+                        if(tokens.get(index).getContent() == "}"){
+                            Node closeBrace = new Node(id++, "Terminal", "}");
+                            procNode.children.add(closeBrace);
+                            // parser passed
+                            return true;
+                        }
+                        else{
+                            // parser failed
+                            return false;
+                        }
+                    }
+                    else{
+                        // parser failed
+                        return false;
+                    }
+                }
+                else{
+                    // parser failed
+                    return false;
+                }
+            }
+            else{
+                // parser failed
+                return false;
+            }
+        }
+        else{
+            // parser failed
+            return false;
+        }
+    }
+
     private Boolean parseINSTR(Node parent){
+        System.out.println("Parsing INSTR");
         Node instrNode = new Node(id++, "Non-Terminal", "INSTR");
         parent.children.add(instrNode);
         if(tokens.get(index).getContent() == "g"){
@@ -175,6 +275,7 @@ class Parser{
             return true;
         }
         else{
+            System.out.println("Error: " + tokens.get(index).getContent());
             // parser failed
             return false;
 
@@ -182,6 +283,7 @@ class Parser{
     }
 
     private Boolean parseINPUT(Node parent){
+        System.out.println("Parsing INPUT");
         Node inputNode = new Node(id++, "Non-Terminal", "INPUT");
         parent.children.add(inputNode);
         if(tokens.get(index).getContent() == "g"){
@@ -206,6 +308,7 @@ class Parser{
     }
 
     private Boolean parseOUTPUT(Node parent){
+        System.out.println("Parsing OUTPUT");
         Node outputNode = new Node(id++, "Non-Terminal", "OUTPUT");
         parent.children.add(outputNode);
         if(tokens.get(index).getContent() == "r"){
@@ -238,6 +341,7 @@ class Parser{
     }
 
     private Boolean parseASSIGN(Node parent){
+        System.out.println("Parsing ASSIGN");
         Node assignNode = new Node(id++, "Non-Terminal", "ASSIGN");
         parent.children.add(assignNode);
         if(tokens.get(index).getContent() == "n"){
@@ -331,6 +435,7 @@ class Parser{
     }
 
     private Boolean parseCALL(Node parent){
+        System.out.println("Parsing CALL");
         Node callNode = new Node(id++, "Non-Terminal", "CALL");
         parent.children.add(callNode);
         if(tokens.get(index).getContent() == "c"){
@@ -363,6 +468,7 @@ class Parser{
     }
 
     private Boolean parseLOOP(Node parent){
+        System.out.println("Parsing LOOP");
         Node loopNode = new Node(id++, "Non-Terminal", "LOOP");
         parent.children.add(loopNode);
         if(tokens.get(index).getContent() == "w"){
@@ -431,6 +537,7 @@ class Parser{
     }
 
     private Boolean parseBRANCH(Node parent){
+        System.out.println("Parsing BRANCH");
         Node branchNode = new Node(id++, "Non-Terminal", "BRANCH");
         parent.children.add(branchNode);
 
@@ -518,6 +625,7 @@ class Parser{
     }
 
     private Boolean parseCOMMENT(Node parent){
+        System.out.println("Parsing COMMENT");
         Node commentNode = new Node(id, "Non-Terminal", "COMMENT");
         parent.children.add(commentNode);
         if(tokens.get(index).getType() == "Comment"){
@@ -543,6 +651,7 @@ class Parser{
     }
 
     private Boolean parseSEQ(Node parent){
+        System.out.println("Parsing SEQ");
         Node seqNode = new Node(id++, "Non-Terminal", "SEQ");
         parent.children.add(seqNode);
 
@@ -560,6 +669,10 @@ class Parser{
                 return false;
             }
         }
+        else if(tokens.get(index).getContent() == "}" || tokens.get(index).getContent() == ","){
+            // parser passed
+            return true;
+        }
         else{
             // parser failed
             return false;
@@ -567,6 +680,7 @@ class Parser{
     }
 
     private Boolean parseNUMVAR(Node parent){
+        System.out.println("Parsing NUMVAR");
         Node numvarNode = new Node(id++, "Non-Terminal", "NUMVAR");
         parent.children.add(numvarNode);
 
@@ -591,6 +705,7 @@ class Parser{
     }
 
     private Boolean parseBOOLVAR(Node parent){
+        System.out.println("Parsing BOOLVAR");
         Node boolvarNode = new Node(id++, "Non-Terminal", "BOOLVAR");
         parent.children.add(boolvarNode);
 
@@ -615,6 +730,7 @@ class Parser{
     }
 
     private Boolean parseSTRINGV(Node parent){
+        System.out.println("Parsing STRINGV");
         Node stringvNode = new Node(id++, "Non-Terminal", "STRINGV");
         parent.children.add(stringvNode);
 
@@ -639,6 +755,7 @@ class Parser{
     }
 
     private Boolean parseTEXT(Node parent){
+        System.out.println("Parsing TEXT");
         Node textNode = new Node(id++, "Non-Terminal", "TEXT");
         parent.children.add(textNode);
 
@@ -663,6 +780,7 @@ class Parser{
     }
 
     private Boolean parseVALUE(Node parent){
+        System.out.println("Parsing VALUE");
         Node valueNode = new Node(id++, "Non-Terminal", "VALUE");
         parent.children.add(valueNode);
 
@@ -687,6 +805,7 @@ class Parser{
     }
 
     private Boolean parseNUMEXPR(Node parent){
+        System.out.println("Parsing NUMEXPR");
         Node numexprNode = new Node(id++, "Non-Terminal", "NUMEXPR");
         parent.children.add(numexprNode);
 
@@ -769,6 +888,7 @@ class Parser{
     }
 
     private Boolean parseBOOLEXPR(Node parent){
+        System.out.println("Parsing BOOLEXPR");
         Node boolexprNode = new Node(id++, "Non-Terminal", "BOOLEXPR");
         parent.children.add(boolexprNode);
 
@@ -801,6 +921,7 @@ class Parser{
     }
 
     private Boolean parseDIGITS(Node parent){
+        System.out.println("Parsing DIGITS");
         Node digitsNode = new Node(id++, "Non-Terminal", "DIGITS");
         parent.children.add(digitsNode);
 
@@ -808,7 +929,10 @@ class Parser{
             Boolean d = parseD(digitsNode);
             if(d){
                 index++;
-                if(isDigit(tokens.get(index).getContent())){
+                if(index >= tokens.size()){
+                    return true;
+                }
+                if(isDigit(tokens.get(index).getContent()) ){
                    Boolean more = parseMORE(digitsNode);
                     if(more){
                         // parser passed
@@ -819,7 +943,7 @@ class Parser{
                         return false;
                     }
                 }
-                else if(tokens.get(index).getContent() == "." ||tokens.get(index).getContent() == ")" || tokens.get(index).getContent() == "," || tokens.get(index).getContent() == "*" || tokens.get(index).getContent() == "}"){
+                else if(tokens.get(index).getContent() == "." ||tokens.get(index).getContent() == ")" || tokens.get(index).getContent() == "," || tokens.get(index).getContent() == "*" || tokens.get(index).getContent() == "}" || tokens.get(index).getContent() == "{"){
                     // parser passed
                     return true;
                 }
@@ -834,12 +958,13 @@ class Parser{
             }
         }
         else{
-            // parser passed
-            return true;
+            // parser failed
+            return false;
         }
     }
 
     private Boolean parseELSE(Node parent){
+        System.out.println("Parsing ELSE");
         Node elseNode = new Node(id++, "Non-Terminal", "ELSE");
         parent.children.add(elseNode);
 
@@ -886,6 +1011,7 @@ class Parser{
     }
 
     private Boolean parseDECNUM(Node parent){
+        System.out.println("Parsing DECNUM");
         Node decnumNode = new Node(id++, "Non-Terminal", "DECNUM");
         parent.children.add(decnumNode);
 
@@ -924,6 +1050,7 @@ class Parser{
     }
 
     private Boolean parseLOGIC(Node parent){
+        System.out.println("Parsing LOGIC");
         Node logicNode = new Node(id++, "Non-Terminal", "LOGIC");
         parent.children.add(logicNode);
 
@@ -1035,6 +1162,7 @@ class Parser{
     }
 
     private Boolean parseCMPR(Node parent){
+        System.out.println("Parsing CMPR");
         Node cmprNode = new Node(id++, "Non-Terminal", "CMPR");
         parent.children.add(cmprNode);
 
@@ -1095,6 +1223,7 @@ class Parser{
     }
 
     private Boolean parseD(Node parent){
+        System.out.println("Parsing D");
         Node dNode = new Node(id++, "Non-Terminal", "D");
         parent.children.add(dNode);
 
@@ -1111,7 +1240,7 @@ class Parser{
     }
 
     private Boolean parseMORE(Node parent){
-        // TODO - check if this is correct
+        System.out.println("Parsing MORE");
         Node moreNode = new Node(id++, "Non-Terminal", "MORE");
         parent.children.add(moreNode);
 
@@ -1126,9 +1255,110 @@ class Parser{
                 return false;
             }
         }
-        else{
+        else if(tokens.get(index).getContent() == "." || tokens.get(index).getContent() == ")" || tokens.get(index).getContent() == "{" || tokens.get(index).getContent() == "," || tokens.get(index).getContent() == "*" || tokens.get(index).getContent() == "}"){
             // parser passed
             return true;
+        }
+        else{
+            // parser failed
+            return false;
+        }
+    }
+
+    private Boolean parseNEG(Node parent){
+        System.out.println("Parsing NEG");
+        Node negNode = new Node(id++, "Non-Terminal", "NEG");
+        parent.children.add(negNode);
+
+        if(tokens.get(index).getContent() == "-"){
+            Node node = new Node(id++, "Terminal", "-");
+            negNode.children.add(node);
+            index++;
+            Boolean pos = parsePOS(negNode);
+            if(pos){
+                // parser passed
+                return true;
+            }
+            else{
+                // parser failed
+                return false;
+            }
+        }
+        else{
+            // parser failed
+            return false;
+        }
+    }
+
+    private Boolean parsePOS(Node parent){
+        System.out.println("Parsing POS");
+        Node posNode = new Node(id++, "Non-Terminal", "POS");
+        parent.children.add(posNode);
+
+        if(isDigit(tokens.get(index).getContent()) && tokens.get(index).getContent() != "0"){
+            Boolean BInt = parseINT(posNode);
+            if(BInt){
+                index++;
+                if(tokens.get(index).getContent() == "."){
+                    Node dotNode = new Node(id++, "Terminal", ".");
+                    posNode.children.add(dotNode);
+                    index++;
+                    Boolean d = parseD(posNode);
+                    if(d){
+                        index++;
+                        Boolean d2 = parseD(posNode);
+                        if(d2){
+                            // parser passed
+                            return true;
+                        }
+                        else{
+                            // parser failed
+                            return false;
+                        }
+                    }
+                    else{
+                        // parser failed
+                        return false;
+                    }
+                }
+                else{
+                    // parser failed
+                    return false;
+                }
+            }
+            else{
+                // parser failed
+                return false;
+            }
+        }
+        else{
+            // parser failed
+            return false;
+        }
+    }
+
+    private Boolean parseINT(Node parent){
+        System.out.println("Parsing INT");
+        Node intNode = new Node(id++, "Non-Terminal", "INT");
+        parent.children.add(intNode);
+
+        if(isDigit(tokens.get(index).getContent()) && tokens.get(index).getContent() != "0"){
+            Node node = new Node(id++, "Terminal", tokens.get(index).getContent());
+            intNode.children.add(node);
+            index++;
+            Boolean more = parseMORE(intNode);
+            if(more){
+                // parser passed
+                return true;
+            }
+            else{
+                // parser failed
+                return false;
+            }
+        }
+        else{
+            // parser failed
+            return false;
         }
     }
 

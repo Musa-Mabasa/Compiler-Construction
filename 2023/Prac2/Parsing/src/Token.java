@@ -1,16 +1,15 @@
-package Lexer;
-
 public class Token {
-    private String id;
+    private int id;
     private String type;
     private String content;
 
     Token(int id,String type, String content) {
+        this.id = id;
         this.type = type;
         this.content = content;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 

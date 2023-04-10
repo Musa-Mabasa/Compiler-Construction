@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 
 public class Node {
@@ -10,6 +11,7 @@ public class Node {
         this.type = type;
         this.content = content;
         this.id = id;
+        children = new ArrayList<Node>();
     }
 
 }

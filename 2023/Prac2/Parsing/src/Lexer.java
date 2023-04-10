@@ -1,4 +1,3 @@
-package Lexer;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
@@ -14,7 +13,7 @@ public class Lexer {
         List<Token> tokens = new ArrayList<Token>();
         
         String input = "";
-        File file = new File("/home/musa/Desktop/COS 341/2023/Compiler-Construction/2023/Prac2/Parser/src/Lexer/code.txt");
+        File file = new File("/home/musa/Desktop/COS 341/2023/Compiler-Construction/2023/Prac2/Parsing/src/code.txt");
         Scanner reader = null;
         try {
             reader = new Scanner(file);
@@ -258,6 +257,11 @@ public class Lexer {
                 System.exit(0);
             }
             
+        }
+
+        for(Token token: tokens){
+            System.out.println("ID: " +token.getId());
+            System.out.println("content: " +token.getContent());
         }
         
         return tokens;
