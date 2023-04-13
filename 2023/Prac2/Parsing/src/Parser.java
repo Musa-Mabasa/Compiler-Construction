@@ -1,10 +1,12 @@
 import java.util.*;
+import java.io.*;
 
 
 class Parser{
     private List<Token> tokens;
     private int index = 0;
     private int id = 1;
+    private Node root = null;
 
     public Parser(){
         Lexer lex = new Lexer();
@@ -12,7 +14,12 @@ class Parser{
     }
 
     public void parse(){
-        parsePROGR(null);
+        if(parsePROGR(null)){
+            writeXML();
+        }
+        else{
+
+        }
     }
 
     private Boolean parsePROGR(Node parent){
@@ -21,11 +28,13 @@ class Parser{
         if(parent != null){
             parent.children.add(startNode);
         }
+        else{
+            root = startNode;
+        }
         Boolean algo = parseALGO(startNode);
         if(algo){
             if(index>=tokens.size()){
                 System.out.println("parser is proper");
-                System.out.println("child: " + startNode.children.get(0).children.get(2).getContent());
                 return true;
             }
 
@@ -148,7 +157,6 @@ class Parser{
             }
             Boolean digits = parseDIGITS(parent);
             if(digits){
-                index++;
                 if(index >= tokens.size()){
                     return false;
                 }
@@ -303,6 +311,7 @@ class Parser{
             }
         }
         else if(tokens.get(index).getContent() == "h"){
+            index++;
             return true;
         }
         else{
@@ -571,6 +580,7 @@ class Parser{
                                 if(tokens.get(index).getContent() == "}"){
                                     Node closeCurlNode = new Node(id++, "Terminal", "}");
                                     loopNode.children.add(closeCurlNode);
+                                    index++;
                                     // parser passed
                                     return true;
                                 }
@@ -720,9 +730,11 @@ class Parser{
 
     private Boolean parseCOMMENT(Node parent){
         System.out.println("Parsing COMMENT");
-        Node commentNode = new Node(id, "Non-Terminal", "COMMENT");
-        parent.children.add(commentNode);
+        System.out.println(tokens.get(index).getContent());
+        
         if(tokens.get(index).getType() == "Comment"){
+            Node commentNode = new Node(id++, "Non-Terminal", "COMMENT");
+            parent.children.add(commentNode);
             index++;
             return true;
         }
@@ -748,10 +760,11 @@ class Parser{
 
     private Boolean parseSEQ(Node parent){
         System.out.println("Parsing SEQ");
-        Node seqNode = new Node(id++, "Non-Terminal", "SEQ");
-        parent.children.add(seqNode);
+        
 
         if(tokens.get(index).getContent() == ";"){
+            Node seqNode = new Node(id++, "Non-Terminal", "SEQ");
+            parent.children.add(seqNode);
             Node semiNode = new Node(id++, "Terminal", ";");
             seqNode.children.add(semiNode);
             index++;
@@ -1074,6 +1087,7 @@ class Parser{
                 }
                 else if(tokens.get(index).getContent() == "." || tokens.get(index).getContent() == ";" ||tokens.get(index).getContent() == ")" || tokens.get(index).getContent() == "," || tokens.get(index).getType() == "Comment" || tokens.get(index).getContent() == "}" || tokens.get(index).getContent() == "{" || tokens.get(index).getContent() == ":="){
                     // parser passed
+                    System.out.println("parser passed dig");
                     return true;
                 }
                 else{
@@ -1094,9 +1108,10 @@ class Parser{
 
     private Boolean parseELSE(Node parent){
         System.out.println("Parsing ELSE");
-        Node elseNode = new Node(id++, "Non-Terminal", "ELSE");
-        parent.children.add(elseNode);
+        
         if(tokens.get(index).getContent() == "e"){
+            Node elseNode = new Node(id++, "Non-Terminal", "ELSE");
+            parent.children.add(elseNode);
             Node eNode = new Node(id++, "Terminal", "e");
             elseNode.children.add(eNode);
             index++;
@@ -1118,6 +1133,7 @@ class Parser{
                     if(tokens.get(index).getContent() == "}"){
                         Node closeNode = new Node(id++, "Terminal", "}");
                         elseNode.children.add(closeNode);
+                        index++;
                         // parser passed
                         return true;
                     }
@@ -1154,11 +1170,13 @@ class Parser{
         if(tokens.get(index).getContent() == "0.00"){
             Node zeroNode = new Node(id++, "Terminal", "0.00");
             decnumNode.children.add(zeroNode);
+            index++;
             // parser passed
             return true;
         }
         else if(tokens.get(index).getContent() == "-"){
            Boolean neg = parseNEG(decnumNode);
+           
             if(neg){
                 // parser passed
                 return true;
@@ -1207,6 +1225,9 @@ class Parser{
             Node boolNode = new Node(id++, "Terminal", tokens.get(index).getContent());
             logicNode.children.add(boolNode);
             index++;
+            if(index >= tokens.size()){
+                return true;
+            }
             // parser passed
             return true;
         }
@@ -1411,10 +1432,11 @@ class Parser{
 
     private Boolean parseMORE(Node parent){
         System.out.println("Parsing MORE");
-        Node moreNode = new Node(id++, "Non-Terminal", "MORE");
-        parent.children.add(moreNode);
+        
 
         if(isDigit(tokens.get(index).getContent())){
+            Node moreNode = new Node(id++, "Non-Terminal", "MORE");
+            parent.children.add(moreNode);
             Boolean digits = parseDIGITS(moreNode);
             if(digits){
                 // parser passed
@@ -1471,10 +1493,10 @@ class Parser{
         if(isDigit(tokens.get(index).getContent()) && tokens.get(index).getContent() != "0"){
             Boolean BInt = parseINT(posNode);
             if(BInt){
-                index++;
                 if(index >= tokens.size()){
                     return false;
                 }
+                System.out.println("contt " +tokens.get(index).getContent());
                 if(tokens.get(index).getContent() == "."){
                     Node dotNode = new Node(id++, "Terminal", ".");
                     posNode.children.add(dotNode);
@@ -1485,11 +1507,14 @@ class Parser{
                     Boolean d = parseD(posNode);
                     if(d){
                         index++;
+                        System.out.println("dd "+tokens.get(index).getContent());
                         if(index >= tokens.size()){
                             return false;
                         }
+                        
                         Boolean d2 = parseD(posNode);
                         if(d2){
+                            index++;
                             // parser passed
                             return true;
                         }
@@ -1555,5 +1580,70 @@ class Parser{
         }
         return true;
     }
+
+    private void writeXML(){
+        System.out.println("Writing XML");
+        System.out.println("Root: " + root.getContent());
+        try{
+            FileWriter writer = new FileWriter("AST.xml");
+            writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+            printTree(root, writer, 0);
+            writer.close(); 
+
+        }
+        catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    private void printTree(Node node, FileWriter writer, int level){
+
+        if(node == null){
+            return;
+        }
+
+        try{
+            for(int i = 0; i < level; i++){
+                writer.write("\t");
+                System.out.print("\t");
+            }
+            if(node.getType() == "Non-Terminal"){
+                writer.write("<" + node.getContent() + " id=\"" + node.getId() + "\" children=\"" );
+                System.out.print("<" + node.getContent() + " id=\"" + node.getId() + "\" children=\"" );
+                for(int i = 0; i < node.children.size(); i++){
+                    writer.write(node.children.get(i).getId() + " ");
+                    System.out.print(node.children.get(i).getId() + " ");
+                    
+                }
+                writer.write("\">\n");
+                System.out.print("\">\n");
+
+                for(int i = 0; i < node.children.size(); i++){
+                    printTree(node.children.get(i), writer, level + 1);
+                }
     
+                for(int i = 0; i < level; i++){
+                    writer.write("\t");
+                    System.out.print("\t");
+                }
+                writer.write("</" + node.getContent() + ">\n");
+                System.out.print("</" + node.getContent() + ">\n");
+            }
+            else{
+                writer.write(node.getContent()+'\n');
+                System.out.print(node.getContent()+'\n');
+                printTree(null, writer, level);
+            }
+            
+           
+            
+
+            
+        }
+        catch(IOException e){
+
+            e.printStackTrace();
+        }
+    
+    }
 }

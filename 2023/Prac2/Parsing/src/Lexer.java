@@ -63,7 +63,7 @@ public class Lexer {
                             if(input.charAt(i+1) == '0'){
                                 Token token = new Token(id, "Symbol", "0.00");
                                 tokens.add(token);
-                                continue;
+                                i++;
                             }
                             else{
                                 System.out.println("\u001B[31mError\u001B[0m: Invalid decimal, expected 0 at line " + row + " column " + col + ", recieved " + input.charAt(i+1)+ " instead.");
@@ -78,10 +78,13 @@ public class Lexer {
                     else{
                         Token token = new Token(id, "Digit", Character.toString(input.charAt(i)));
                         tokens.add(token);
+                        continue;
                     }
                 }
-                Token token = new Token(id, "Digit", Character.toString(input.charAt(i)));
-                tokens.add(token);
+                else{
+                    Token token = new Token(id, "Digit", Character.toString(input.charAt(i)));
+                    tokens.add(token);
+                }
             }
             else if(input.charAt(i) == ';'){
                 Token token = new Token(id, "Symbol", ";");
