@@ -23,9 +23,9 @@ class Parser{
         }
         Boolean algo = parseALGO(startNode);
         if(algo){
-            index++;
             if(index>=tokens.size()){
                 System.out.println("parser is proper");
+                System.out.println("child: " + startNode.children.get(0).children.get(2).getContent());
                 return true;
             }
 
@@ -36,11 +36,13 @@ class Parser{
                 return true;
             }
             else{
+                System.out.println("parser is not proper");
                 // parser failed
                 return false;
             }
         }
         else{
+            System.out.println("parser is not proper");
             return false;
             // parser failed
         }
@@ -52,16 +54,20 @@ class Parser{
         parent.children.add(algoNode);
 
         Boolean instr = parseINSTR(algoNode);
-        index++;
         if(instr){
             if(index >= tokens.size()){
                 return true;
             }
             Boolean comm = parseCOMMENT(algoNode);
-            index++;
             if(comm){
+                if(index >= tokens.size()){
+                    return true;
+                }
                 Boolean seq = parseSEQ(algoNode);
                 if(seq){
+                    if(index >= tokens.size()){
+                        return true;
+                    }
                     // parser passed
                     return true;
                 }
@@ -89,11 +95,22 @@ class Parser{
         if(tokens.get(index).getContent() == ","){
             Node comma = new Node(id++, "Terminal", ",");
             procdefsNode.children.add(comma);
+            index++;
+            if(index >= tokens.size()){
+                return false;
+            }
             Boolean proc = parsePROC(procdefsNode);
             if(proc){
                 index++;
+                if(index >= tokens.size()){
+                    return true;
+                }
                 Boolean procdefs = parsePROCDEFS(procdefsNode);
                 if(procdefs){
+                    index++;
+                    if(index >= tokens.size()){
+                        return true;
+                    }
                     // parser passed
                     return true;
                 }
@@ -126,16 +143,27 @@ class Parser{
             Node pNode = new Node(id++, "Terminal", "p");
             procNode.children.add(pNode);
             index++;
+            if(index >= tokens.size()){
+                return false;
+            }
             Boolean digits = parseDIGITS(parent);
             if(digits){
                 index++;
+                if(index >= tokens.size()){
+                    return false;
+                }
                 if(tokens.get(index).getContent() == "{"){
                     Node openBrace = new Node(id++, "Terminal", "{");
                     procNode.children.add(openBrace);
                     index++;
+                    if(index >= tokens.size()){
+                        return false;
+                    }
                     Boolean progr = parsePROGR(procNode);
                     if(progr){
-                        index++;
+                        if(index >= tokens.size()){
+                            return true;
+                        }
                         if(tokens.get(index).getContent() == "}"){
                             Node closeBrace = new Node(id++, "Terminal", "}");
                             procNode.children.add(closeBrace);
@@ -175,6 +203,7 @@ class Parser{
         if(tokens.get(index).getContent() == "g"){
             Boolean input = parseINPUT(instrNode);
             if(input){
+                System.out.println("parser passed heree");
                 // parser passed
                 return true;
             }
@@ -252,6 +281,8 @@ class Parser{
         else if(tokens.get(index).getContent() == "w"){
             Boolean loop = parseLOOP(instrNode);
             if(loop){
+                System.out.println("Loop hereee");
+                
                 // parser passed
                 return true;
             }
@@ -290,8 +321,12 @@ class Parser{
             Node gNode = new Node(id++, "Terminal", "g");
             inputNode.children.add(gNode);
             index++;
+            if(index >= tokens.size()){
+                return false;
+            }
             Boolean numvar = parseNUMVAR(inputNode);
             if(numvar){
+                System.out.println("parser passed heree1");
                 // parser passed
                 return true;
             }
@@ -347,11 +382,16 @@ class Parser{
         if(tokens.get(index).getContent() == "n"){
             Boolean numvar = parseNUMVAR(assignNode);
             if(numvar){
-                index++;
+                if(index >= tokens.size()){
+                    return false;
+                }
                 if(tokens.get(index).getContent() == ":="){
                     Node equalNode = new Node(id++, "Terminal", ":=");  
                     assignNode.children.add(equalNode);
                     index++;
+                    if(index >= tokens.size()){
+                        return false;
+                    }
                     Boolean numexpr = parseNUMEXPR(assignNode);
                     if(numexpr){
                         // parser passed
@@ -375,11 +415,16 @@ class Parser{
         else if(tokens.get(index).getContent() == "b"){
             Boolean boolvar = parseBOOLVAR(assignNode);
             if(boolvar){
-                index++;
+                if(index >= tokens.size()){
+                    return false;
+                }
                 if(tokens.get(index).getContent() == ":="){
                     Node equalNode = new Node(id++, "Terminal", ":=");  
                     assignNode.children.add(equalNode);
                     index++;
+                    if(index >= tokens.size()){
+                        return false;
+                    }
                     Boolean boolexpr = parseBOOLEXPR(assignNode);
                     if(boolexpr){
                         // parser passed
@@ -403,13 +448,19 @@ class Parser{
         else if(tokens.get(index).getContent() == "s"){
             Boolean strvar = parseSTRINGV(assignNode);
             if(strvar){
-                index++;
+                if(index >= tokens.size()){
+                    return false;
+                }
                 if(tokens.get(index).getContent() == ":="){
                     Node equalNode = new Node(id++, "Terminal", ":=");  
                     assignNode.children.add(equalNode);
                     index++;
+                    if(index >= tokens.size()){
+                        return false;
+                    }
                     Boolean strval = parseSTRI(assignNode);
                     if(strval){
+                        index++;
                         // parser passed
                         return true;
                     }
@@ -442,10 +493,16 @@ class Parser{
             Node cNode = new Node(id++, "Terminal", "c");
             callNode.children.add(cNode);
             index++;
+            if(index >= tokens.size()){
+                return false;
+            }
             if(tokens.get(index).getContent() == "p"){
                 Node pNode = new Node(id++, "Terminal", "p");
                 callNode.children.add(pNode);
                 index++;
+                if(index >= tokens.size()){
+                    return false;
+                }
                 Boolean digits = parseDIGITS(callNode);
                 if(digits){
                     // parser passed
@@ -475,24 +532,42 @@ class Parser{
             Node wNode = new Node(id++, "Terminal", "w");
             loopNode.children.add(wNode);
             index++;
+            if(index >= tokens.size()){
+                return false;
+            }
             if(tokens.get(index).getContent() == "("){
                 Node openNode = new Node(id++, "Terminal", "(");
                 loopNode.children.add(openNode);
                 index++;
+                if(index >= tokens.size()){
+                    return false;
+                }
                 Boolean boolexpr = parseBOOLEXPR(loopNode);
                 if(boolexpr){
-                    index++;
+                    if(index >= tokens.size()){
+                        return false;
+                    }
                     if(tokens.get(index).getContent() == ")"){
+                       
                         Node closeNode = new Node(id++, "Terminal", ")");
                         loopNode.children.add(closeNode);
                         index++;
+                        if(index >= tokens.size()){
+                            return false;
+                        }
+                        System.out.println(tokens.get(index).getContent());
                         if(tokens.get(index).getContent() == "{"){
                             Node openCurlNode = new Node(id++, "Terminal", "{");
                             loopNode.children.add(openCurlNode);
                             index++;
+                            if(index >= tokens.size()){
+                                return false;
+                            }
                             Boolean algo = parseALGO(loopNode);
                             if(algo){
-                                index++;
+                                if(index >= tokens.size()){
+                                    return false;
+                                }
                                 if(tokens.get(index).getContent() == "}"){
                                     Node closeCurlNode = new Node(id++, "Terminal", "}");
                                     loopNode.children.add(closeCurlNode);
@@ -545,32 +620,51 @@ class Parser{
             Node iNode = new Node(id++, "Terminal", "i");
             branchNode.children.add(iNode);
             index++;
+            if(index >= tokens.size()){
+                return false;
+            }
             if(tokens.get(index).getContent() == "("){
                 Node openNode = new Node(id++, "Terminal","(");
                 branchNode.children.add(openNode);
                 index++;
+                if(index >= tokens.size()){
+                    return false;
+                }
                 Boolean boolexpr = parseBOOLEXPR(branchNode);
                 if(boolexpr){
-                    index++;
+                    if(index >= tokens.size()){
+                        return false;
+                    }
                     if(tokens.get(index).getContent() == ")"){
                         Node closeNode = new Node(id++, "Terminal", ")");
                         branchNode.children.add(closeNode);
                         index++;
+                        if(index >= tokens.size()){
+                            return false;
+                        }
                         if(tokens.get(index).getContent() == "t"){
                             Node tNode = new Node(id++, "Terminal", "t");
                             branchNode.children.add(tNode);
                             index++;
+                            if(index >= tokens.size()){
+                                return false;
+                            }
                             if(tokens.get(index).getContent() == "{"){
                                 Node openCurlNode = new Node(id++, "Terminal", "t");
                                 branchNode.children.add(openCurlNode);
                                 index++;
+                                if(index >= tokens.size()){
+                                    return false;
+                                }
                                 Boolean algo = parseALGO(branchNode);
                                 if(algo){
-                                    index++;
                                     if(tokens.get(index).getContent() == "}"){
                                         Node closeCurlNode = new Node(id++, "Terminal", "}");
                                         branchNode.children.add(closeCurlNode);
                                         index++;
+                                        if(index >= tokens.size()){
+                                            return true;
+                                        }
                                         Boolean BElse = parseELSE(branchNode);
                                         if(BElse){
                                             // parser passed
@@ -629,6 +723,7 @@ class Parser{
         Node commentNode = new Node(id, "Non-Terminal", "COMMENT");
         parent.children.add(commentNode);
         if(tokens.get(index).getType() == "Comment"){
+            index++;
             return true;
         }
         else if(tokens.get(index).getContent() == ";" || tokens.get(index).getContent() == "}" || tokens.get(index).getContent() == ","){
@@ -640,6 +735,7 @@ class Parser{
     }
 
     private Boolean parseSTRI(Node parent){
+        System.out.println("Parsing STRI");
         Node striNode = new Node(id, "Non-Terminal", "STRI");
         parent.children.add(striNode);
         if(tokens.get(index).getType() == "String"){
@@ -659,6 +755,9 @@ class Parser{
             Node semiNode = new Node(id++, "Terminal", ";");
             seqNode.children.add(semiNode);
             index++;
+            if(index >= tokens.size()){
+                return false;
+            }
             Boolean algo = parseALGO(seqNode);
             if(algo){
                 // parser passed
@@ -670,6 +769,7 @@ class Parser{
             }
         }
         else if(tokens.get(index).getContent() == "}" || tokens.get(index).getContent() == ","){
+            System.out.println(tokens.get(index).getContent());
             // parser passed
             return true;
         }
@@ -688,6 +788,9 @@ class Parser{
             Node nNode = new Node(id++, "Terminal", "n");
             numvarNode.children.add(nNode);
             index++;
+            if(index >= tokens.size()){
+                return false;
+            }
             Boolean digits = parseDIGITS(numvarNode);
             if(digits){
                 // parser passed
@@ -713,6 +816,9 @@ class Parser{
             Node bNode = new Node(id++, "Terminal", "b");
             boolvarNode.children.add(bNode);
             index++;
+            if(index >= tokens.size()){
+                return false;
+            }
             Boolean digits = parseDIGITS(boolvarNode);
             if(digits){
                 // parser passed
@@ -738,6 +844,9 @@ class Parser{
             Node sNode = new Node(id++, "Terminal", "s");
             stringvNode.children.add(sNode);
             index++;
+            if(index >= tokens.size()){
+                return false;
+            }
             Boolean digits = parseDIGITS(stringvNode);
             if(digits){
                 // parser passed
@@ -763,6 +872,9 @@ class Parser{
             Node rNode = new Node(id++, "Terminal", "r");
             textNode.children.add(rNode);
             index++;
+            if(index >= tokens.size()){
+                return false;
+            }
             Boolean stringv = parseSTRINGV(textNode);
             if(stringv){
                 // parser passed
@@ -788,6 +900,9 @@ class Parser{
             Node oNode = new Node(id++, "Terminal", "o");
             valueNode.children.add(oNode);
             index++;
+            if(index >= tokens.size()){
+                return false;
+            }
             Boolean numvar = parseNUMVAR(valueNode);
             if(numvar){
                 // parser passed
@@ -813,20 +928,33 @@ class Parser{
             Node node = new Node(id++, "Terminal", tokens.get(index).getContent() );
             numexprNode.children.add(node);
             index++;
+            if(index >= tokens.size()){
+                return false;
+            }
             if(tokens.get(index).getContent() == "("){
                 Node openNode = new Node(id++, "Terminal", "(");
                 numexprNode.children.add(openNode);
                 index++;
+                if(index >= tokens.size()){
+                    return false;
+                }
                 Boolean numexpr = parseNUMEXPR(numexprNode);
                 if(numexpr){
-                    index++;
+                    if(index >= tokens.size()){
+                        return false;
+                    }
                     if(tokens.get(index).getContent() == ","){
                         Node commaNode = new Node(id++, "Terminal", ",");
                         numexprNode.children.add(commaNode);
                         index++;
+                        if(index >= tokens.size()){
+                            return false;
+                        }
                         Boolean numexpr2 = parseNUMEXPR(numexprNode);
                         if(numexpr2){
-                            index++;
+                            if(index >= tokens.size()){
+                                return false;
+                            }
                             if(tokens.get(index).getContent() == ")"){
                                 Node closeNode = new Node(id++, "Terminal", ")");
                                 numexprNode.children.add(closeNode);
@@ -932,6 +1060,7 @@ class Parser{
                 if(index >= tokens.size()){
                     return true;
                 }
+                System.out.println("ddddd "+tokens.get(index).getContent());
                 if(isDigit(tokens.get(index).getContent()) ){
                    Boolean more = parseMORE(digitsNode);
                     if(more){
@@ -943,7 +1072,7 @@ class Parser{
                         return false;
                     }
                 }
-                else if(tokens.get(index).getContent() == "." ||tokens.get(index).getContent() == ")" || tokens.get(index).getContent() == "," || tokens.get(index).getContent() == "*" || tokens.get(index).getContent() == "}" || tokens.get(index).getContent() == "{"){
+                else if(tokens.get(index).getContent() == "." || tokens.get(index).getContent() == ";" ||tokens.get(index).getContent() == ")" || tokens.get(index).getContent() == "," || tokens.get(index).getType() == "Comment" || tokens.get(index).getContent() == "}" || tokens.get(index).getContent() == "{" || tokens.get(index).getContent() == ":="){
                     // parser passed
                     return true;
                 }
@@ -967,18 +1096,25 @@ class Parser{
         System.out.println("Parsing ELSE");
         Node elseNode = new Node(id++, "Non-Terminal", "ELSE");
         parent.children.add(elseNode);
-
         if(tokens.get(index).getContent() == "e"){
             Node eNode = new Node(id++, "Terminal", "e");
             elseNode.children.add(eNode);
             index++;
+            if(index >= tokens.size()){
+                return false;
+            }
             if(tokens.get(index).getContent() == "{"){
                 Node openNode = new Node(id++, "Terminal", "{");
                 elseNode.children.add(openNode);
                 index++;
+                if(index >= tokens.size()){
+                    return false;
+                }
                 Boolean algo = parseALGO(elseNode);
                 if(algo){
-                    index++;
+                    if(index >= tokens.size()){
+                        return false;
+                    }
                     if(tokens.get(index).getContent() == "}"){
                         Node closeNode = new Node(id++, "Terminal", "}");
                         elseNode.children.add(closeNode);
@@ -1051,8 +1187,10 @@ class Parser{
 
     private Boolean parseLOGIC(Node parent){
         System.out.println("Parsing LOGIC");
+        System.out.println("token: "+tokens.get(index).getContent());
         Node logicNode = new Node(id++, "Non-Terminal", "LOGIC");
         parent.children.add(logicNode);
+
 
         if(tokens.get(index).getContent() == "b"){
             Boolean boolvar = parseBOOLVAR(logicNode);
@@ -1068,7 +1206,7 @@ class Parser{
         else if(tokens.get(index).getContent() == "T" || tokens.get(index).getContent() == "F"){
             Node boolNode = new Node(id++, "Terminal", tokens.get(index).getContent());
             logicNode.children.add(boolNode);
-
+            index++;
             // parser passed
             return true;
         }
@@ -1076,20 +1214,30 @@ class Parser{
             Node node = new Node(id++, "Terminal", tokens.get(index).getContent() );
             logicNode.children.add(node);
             index++;
+            if(index >= tokens.size()){
+                return false;
+            }
             if(tokens.get(index).getContent() == "("){
                 Node openNode = new Node(id++, "Terminal", "(");
                 logicNode.children.add(openNode);
                 index++;
+                if(index >= tokens.size()){
+                    return false;
+                }
                 Boolean numexpr = parseBOOLEXPR(logicNode);
                 if(numexpr){
-                    index++;
+                    if(index >= tokens.size()){
+                        return false;
+                    }
                     if(tokens.get(index).getContent() == ","){
                         Node commaNode = new Node(id++, "Terminal", ",");
                         logicNode.children.add(commaNode);
                         index++;
                         Boolean numexpr2 = parseBOOLEXPR(logicNode);
                         if(numexpr2){
-                            index++;
+                            if(index >= tokens.size()){
+                                return false;
+                            }
                             if(tokens.get(index).getContent() == ")"){
                                 Node closeNode = new Node(id++, "Terminal", ")");
                                 logicNode.children.add(closeNode);
@@ -1126,16 +1274,25 @@ class Parser{
             Node exNode = new Node(id++, "Terminal", "!");
             logicNode.children.add(exNode);
             index++;
+            if(index >= tokens.size()){
+                return false;
+            }
             if(tokens.get(index).getContent() == "("){
                 Node openNode = new Node(id++, "Terminal", "(");
                 logicNode.children.add(openNode);
                 index++;
+                if(index >= tokens.size()){
+                    return false;
+                }
                 Boolean numexpr = parseBOOLEXPR(logicNode);
                 if(numexpr){
-                    index++;
+                    if(index >= tokens.size()){
+                        return false;
+                    }
                     if(tokens.get(index).getContent() == ")"){
                         Node closeNode = new Node(id++, "Terminal", ")");
                         logicNode.children.add(closeNode);
+                        index++;
                         // parser passed
                         return true;
                     }
@@ -1170,20 +1327,33 @@ class Parser{
             Node node = new Node(id++, "Terminal", tokens.get(index).getContent() );
             cmprNode.children.add(node);
             index++;
+            if(index >= tokens.size()){
+                return false;
+            }
             if(tokens.get(index).getContent() == "("){
                 Node openNode = new Node(id++, "Terminal", "(");
                 cmprNode.children.add(openNode);
                 index++;
+                if(index >= tokens.size()){
+                    return false;
+                }
                 Boolean numexpr = parseNUMEXPR(cmprNode);
                 if(numexpr){
-                    index++;
+                    if(index >= tokens.size()){
+                        return false;
+                    }
                     if(tokens.get(index).getContent() == ","){
                         Node commaNode = new Node(id++, "Terminal", ",");
                         cmprNode.children.add(commaNode);
                         index++;
+                        if(index >= tokens.size()){
+                            return false;
+                        }
                         Boolean numexpr2 = parseNUMEXPR(cmprNode);
                         if(numexpr2){
-                            index++;
+                            if(index >= tokens.size()){
+                                return false;
+                            }
                             if(tokens.get(index).getContent() == ")"){
                                 Node closeNode = new Node(id++, "Terminal", ")");
                                 cmprNode.children.add(closeNode);
@@ -1274,6 +1444,9 @@ class Parser{
             Node node = new Node(id++, "Terminal", "-");
             negNode.children.add(node);
             index++;
+            if(index >= tokens.size()){
+                return false;
+            }
             Boolean pos = parsePOS(negNode);
             if(pos){
                 // parser passed
@@ -1299,13 +1472,22 @@ class Parser{
             Boolean BInt = parseINT(posNode);
             if(BInt){
                 index++;
+                if(index >= tokens.size()){
+                    return false;
+                }
                 if(tokens.get(index).getContent() == "."){
                     Node dotNode = new Node(id++, "Terminal", ".");
                     posNode.children.add(dotNode);
                     index++;
+                    if(index >= tokens.size()){
+                        return false;
+                    }
                     Boolean d = parseD(posNode);
                     if(d){
                         index++;
+                        if(index >= tokens.size()){
+                            return false;
+                        }
                         Boolean d2 = parseD(posNode);
                         if(d2){
                             // parser passed
@@ -1346,6 +1528,9 @@ class Parser{
             Node node = new Node(id++, "Terminal", tokens.get(index).getContent());
             intNode.children.add(node);
             index++;
+            if(index >= tokens.size()){
+                return true;
+            }
             Boolean more = parseMORE(intNode);
             if(more){
                 // parser passed

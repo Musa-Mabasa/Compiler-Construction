@@ -14,4 +14,16 @@ public class Node {
         children = new ArrayList<Node>();
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public int getId() {
+        return id;
+    }
+
 }

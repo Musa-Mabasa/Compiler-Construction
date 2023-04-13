@@ -47,7 +47,7 @@ public class Lexer {
                 tokens.add(token);
             }
             else if(input.charAt(i) == '{'){
-                Token token = new Token(id, "Symbol", "}");
+                Token token = new Token(id, "Symbol", "{");
                 tokens.add(token);
             }
             else if(input.charAt(i) == '}'){
