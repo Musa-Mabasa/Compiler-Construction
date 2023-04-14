@@ -40,6 +40,12 @@ class Parser{
 
             Boolean pd = parsePROCDEFS(startNode);
             if(pd){
+                if(parent == null){
+                    if(index < tokens.size()){
+                        System.out.println("parser is not proper");
+                        return false;
+                    }
+                }
                 // parser passed
                 System.out.println("parser is proper");
                 return true;
@@ -98,10 +104,11 @@ class Parser{
 
     private Boolean parsePROCDEFS(Node parent){
         System.out.println("Parsing PROCDEFS");
-        Node procdefsNode = new Node(id++, "Non-Terminal", "PROCDEFS");
-        parent.children.add(procdefsNode);
+        
 
         if(tokens.get(index).getContent() == ","){
+            Node procdefsNode = new Node(id++, "Non-Terminal", "PROCDEFS");
+            parent.children.add(procdefsNode);
             Node comma = new Node(id++, "Terminal", ",");
             procdefsNode.children.add(comma);
             index++;
@@ -110,12 +117,14 @@ class Parser{
             }
             Boolean proc = parsePROC(procdefsNode);
             if(proc){
-                index++;
+                // System.out.println("hhh: "+ index + tokens.get(index).getContent());
+
                 if(index >= tokens.size()){
                     return true;
                 }
                 Boolean procdefs = parsePROCDEFS(procdefsNode);
                 if(procdefs){
+
                     index++;
                     if(index >= tokens.size()){
                         return true;
@@ -155,7 +164,7 @@ class Parser{
             if(index >= tokens.size()){
                 return false;
             }
-            Boolean digits = parseDIGITS(parent);
+            Boolean digits = parseDIGITS(procNode);
             if(digits){
                 if(index >= tokens.size()){
                     return false;
@@ -170,7 +179,7 @@ class Parser{
                     Boolean progr = parsePROGR(procNode);
                     if(progr){
                         if(index >= tokens.size()){
-                            return true;
+                            return false;
                         }
                         if(tokens.get(index).getContent() == "}"){
                             Node closeBrace = new Node(id++, "Terminal", "}");
@@ -311,6 +320,8 @@ class Parser{
             }
         }
         else if(tokens.get(index).getContent() == "h"){
+            Node hNode = new Node(id++, "Terminal", "h");
+            instrNode.children.add(hNode);
             index++;
             return true;
         }
