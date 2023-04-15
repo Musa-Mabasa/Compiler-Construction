@@ -17,9 +17,6 @@ class Parser{
         if(parsePROGR(null)){
             writeXML();
         }
-        else{
-
-        }
     }
 
     private Boolean parsePROGR(Node parent){
@@ -42,7 +39,8 @@ class Parser{
             if(pd){
                 if(parent == null){
                     if(index < tokens.size()){
-                        System.out.println("parser is not proper");
+                        System.out.println("\u001B[31mError\u001B[0m: invalid symbol at line "+ tokens.get(index).getRow() + " col "+ tokens.get(index).getCol() + ", token: "+ tokens.get(index).getContent());
+
                         return false;
                     }
                 }

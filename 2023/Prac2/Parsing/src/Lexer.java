@@ -39,31 +39,92 @@ public class Lexer {
                 continue;
             }
             else if(input.charAt(i) == ','){
-                Token token = new Token(id, "Symbol", ",");
+                Token token = new Token(id, "Symbol", ",", row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == 'p'){
-                Token token = new Token(id, "Symbol", "p");
+                Token token = new Token(id, "Symbol", "p", row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == '{'){
-                Token token = new Token(id, "Symbol", "{");
+                Token token = new Token(id, "Symbol", "{", row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == '}'){
-                Token token = new Token(id, "Symbol", "}");
+                Token token = new Token(id, "Symbol", "}", row, col);
                 tokens.add(token);
             }
             else if(Character.isDigit(input.charAt(i))){
                 if(input.charAt(i) == '0'){
-                    if(input.charAt(i+1) == '.'){
+                    System.out.println("hereeeee");
+                    i++;
+                    while( i < input.length() && (input.charAt(i) == ' ' || input.charAt(i) == '\n')){
+                        if(input.charAt(i) == '\n'){
+                            row++;
+                            col = 1;
+                        }
+                        else{
+                            col++;
+                        }
                         i++;
-                        if(input.charAt(i+1) == '0'){
+                    }
+                    if(i == input.length()){
+                        Token token = new Token(id, "Number", "0", row, col);
+                        tokens.add(token);
+                        continue;
+                    }
+                    else{
+                        if(input.charAt(i) == '.'){
                             i++;
-                            if(input.charAt(i+1) == '0'){
-                                Token token = new Token(id, "Symbol", "0.00");
-                                tokens.add(token);
+                            while( i < input.length() && input.charAt(i) != '0'){
+                                if(input.charAt(i) != '\n' && input.charAt(i) != ' '){
+                                    System.out.println("\u001B[31mError\u001B[0m: Invalid symbol at line " + row + " column " + col +", Expected '0' token" );
+                                    System.exit(0);
+                                }
+                                if(input.charAt(i) == '\n'){
+                                    row++;
+                                    col = 1;
+                                }
+                                else{
+                                    col++;
+                                }
                                 i++;
+                            }
+                            if(i == input.length()){
+                                System.out.println("\u001B[31mError\u001B[0m: Invalid symbol at line " + row + " column " + col +", Expected '0' token" );
+                                System.exit(0);
+                            }
+                            if(input.charAt(i) == '0'){
+                                i++;
+                                while( i < input.length() && input.charAt(i) != '0'){
+                                    if(input.charAt(i) != '\n' && input.charAt(i) != ' '){
+                                        System.out.println("\u001B[31mError\u001B[0m: Invalid symbol at line " + row + " column " + col +", Expected '0' token" );
+                                        System.exit(0);
+                                    }
+                                    if(input.charAt(i) == '\n'){
+                                        row++;
+                                        col = 1;
+                                    }
+                                    else{
+                                        col++;
+                                    }
+                                    i++;
+                                }
+                                if(i == input.length()){
+                                    System.out.println("\u001B[31mError\u001B[0m: Invalid symbol at line " + row + " column " + col +", Expected '0' token" );
+                                    System.exit(0);
+                                }
+                                else{
+                                    if(input.charAt(i) == '0'){
+                                        Token token = new Token(id, "Symbol", "0.00", row, col);
+                                        tokens.add(token);
+                                    }
+                                    else{
+                                        System.out.println("\u001B[31mError\u001B[0m: Invalid decimal, expected 0 at line " + row + " column " + col + ", recieved " + input.charAt(i+1)+ " instead.");
+                                        System.exit(0);
+                                    }
+                                }
+                                
                             }
                             else{
                                 System.out.println("\u001B[31mError\u001B[0m: Invalid decimal, expected 0 at line " + row + " column " + col + ", recieved " + input.charAt(i+1)+ " instead.");
@@ -71,192 +132,182 @@ public class Lexer {
                             }
                         }
                         else{
-                            System.out.println("\u001B[31mError\u001B[0m: Invalid decimal, expected 0 at line " + row + " column " + col + ", recieved " + input.charAt(i+1)+ " instead.");
-                            System.exit(0);
+
+                            Token token = new Token(id, "Digit", "0" , row, col);
+                            tokens.add(token);
+                            i--;
+                            continue;
                         }
                     }
-                    else{
-                        Token token = new Token(id, "Digit", Character.toString(input.charAt(i)));
-                        tokens.add(token);
-                        continue;
-                    }
+                    
                 }
                 else{
-                    Token token = new Token(id, "Digit", Character.toString(input.charAt(i)));
+                    Token token = new Token(id, "Digit", Character.toString(input.charAt(i)), row, col);
                     tokens.add(token);
                 }
             }
             else if(input.charAt(i) == ';'){
-                Token token = new Token(id, "Symbol", ";");
+                Token token = new Token(id, "Symbol", ";", row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == 'h'){
-                Token token = new Token(id, "Symbol", "h");
+                Token token = new Token(id, "Symbol", "h",  row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == 'c'){
-                Token token = new Token(id, "Symbol", "c");
+                Token token = new Token(id, "Symbol", "c", row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == ':'){
                 i++;
-                if(i<input.length()-1){
-                    if(input.charAt(i) == '='){
-                        Token token = new Token(id, "Symbol", ":=");
-                        tokens.add(token);
+                while( i < input.length() && input.charAt(i) != '='){
+                    if(input.charAt(i) != '\n' && input.charAt(i) != ' '){
+                        System.out.println("\u001B[31mError\u001B[0m: Invalid symbol at line " + row + " column " + col +", Expected '=' token" );
+                        System.exit(0);
                     }
-                    else if(input.charAt(i) == '\n'){
-                        i++;
+                    if(input.charAt(i) == '\n'){
                         row++;
                         col = 1;
-                        if(i<input.length()-1){
-                            if(input.charAt(i) == '='){
-                                Token token = new Token(id, "Symbol", ":=");
-                                tokens.add(token);
-                            }
-                            else{
-                                System.out.println("\u001B[31mError\u001B[0m: Invalid symbol at line " + row + " column " + col +"." );
-                                System.exit(0);
-                            }
-                        }
-                        else{
-                            System.out.println("\u001B[31mError\u001B[0m: Invalid symbol at line " + row + " column " + col +"." );
-                            System.exit(0);
-                        }
+                    }
+                    else{
+                        col++;
+                    }
+                    i++;
+                }
+                if(i == input.length()){
+                    System.out.println("\u001B[31mError\u001B[0m: Invalid symbol at line " + row + " column " + col +", Expected '=' token" );
+                    System.exit(0);
+                }
+                else{
+                    if(input.charAt(i) == '='){
+                        Token token = new Token(id, "Symbol", ":=", row, col);
+                        tokens.add(token);
                     }
                     else{
                         System.out.println("\u001B[31mError\u001B[0m: Invalid symbol at line " + row + " column " + col +"." );
-                        System.exit(0);
                     }
-                } 
-                else{
-                    System.out.println("\u001B[31mError\u001B[0m: Invalid symbol at line " + row + " column " + col +"." );
-                    System.exit(0);
+                       
                 }
             }
-            else if(input.charAt(i) == '='){
-                Token token = new Token(id, "Symbol", "=");
-                tokens.add(token);
-            }
             else if(input.charAt(i) == 'w'){
-                Token token = new Token(id, "Symbol", "w");
+                Token token = new Token(id, "Symbol", "w", row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == '('){
-                Token token = new Token(id, "Symbol", "(");
+                Token token = new Token(id, "Symbol", "(", row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == ')'){
-                Token token = new Token(id, "Symbol", ")");
+                Token token = new Token(id, "Symbol", ")", row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == 'i'){
-                Token token = new Token(id, "Symbol", "i");
+                Token token = new Token(id, "Symbol", "i", row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == 't'){
-                Token token = new Token(id, "Symbol", "t");
+                Token token = new Token(id, "Symbol", "t", row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == 'e'){
-                Token token = new Token(id, "Symbol", "e");
+                Token token = new Token(id, "Symbol", "e", row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == 'n'){
-                Token token = new Token(id, "Symbol", "n");
+                Token token = new Token(id, "Symbol", "n", row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == 'b'){
-                Token token = new Token(id, "Symbol", "b");
+                Token token = new Token(id, "Symbol", "b", row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == 's'){
-                Token token = new Token(id, "Symbol", "s");
+                Token token = new Token(id, "Symbol", "s", row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == 'a'){
-                Token token = new Token(id, "Symbol", "a");
+                Token token = new Token(id, "Symbol", "a", row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == ','){
-                Token token = new Token(id, "Symbol", ",");
+                Token token = new Token(id, "Symbol", ",", row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == 'm'){
-                Token token = new Token(id, "Symbol", "m");
+                Token token = new Token(id, "Symbol", "m", row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == 'd'){
-                Token token = new Token(id, "Symbol", "d");
+                Token token = new Token(id, "Symbol", "d", row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == '-'){
-                Token token = new Token(id, "Symbol", "-");
+                Token token = new Token(id, "Symbol", "-", row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == '.'){
-                Token token = new Token(id, "Symbol", ".");
+                Token token = new Token(id, "Symbol", ".", row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == 'T'){
-                Token token = new Token(id, "Symbol", "T");
+                Token token = new Token(id, "Symbol", "T", row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == 'F'){
-                Token token = new Token(id, "Symbol", "F");
+                Token token = new Token(id, "Symbol", "F", row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == '^'){
-                Token token = new Token(id, "Symbol", "^");
+                Token token = new Token(id, "Symbol", "^", row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == 'v'){
-                Token token = new Token(id, "Symbol", "v");
+                Token token = new Token(id, "Symbol", "v", row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == '!'){
-                Token token = new Token(id, "Symbol", "!");
+                Token token = new Token(id, "Symbol", "!", row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == 'E'){
-                Token token = new Token(id, "Symbol", "E");
+                Token token = new Token(id, "Symbol", "E", row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == '<'){
-                Token token = new Token(id, "Symbol", "<");
+                Token token = new Token(id, "Symbol", "<", row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == '>'){
-                Token token = new Token(id, "Symbol", ">");
+                Token token = new Token(id, "Symbol", ">", row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == '\"' || input.charAt(i) == '*' ){
                 String shortString = checkStringOrComment(input, i);
                 if(input.charAt(i) == '\"'){
-                    Token token = new Token(id, "String", shortString);
+                    Token token = new Token(id, "String", shortString, row, col);
                     tokens.add(token);
                 }
                 else{
-                    Token token = new Token(id, "Comment", shortString);
+                    Token token = new Token(id, "Comment", shortString, row, col);
                     tokens.add(token);
                 }
                 
                 i+=16;
             }
             else if(input.charAt(i) == 'g'){
-                Token token = new Token(id, "Symbol", "g");
+                Token token = new Token(id, "Symbol", "g", row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == 'o'){
-                Token token = new Token(id, "Symbol", "o");
+                Token token = new Token(id, "Symbol", "o", row, col);
                 tokens.add(token);
             }
             else if(input.charAt(i) == 'r'){
-                Token token = new Token(id, "Symbol", "r");
+                Token token = new Token(id, "Symbol", "r", row, col);
                 tokens.add(token);
             }
             else{
-                System.out.println("\u001B[31mError\u001B[0m: Invalid symbol at line " + row + " column " + col +"." );
+                System.out.println("\u001B[31mError\u001B[0m: Invalid symbol at line " + row + " column " + col +", token: "+ input.charAt(i)  );
                 System.exit(0);
             }
             
