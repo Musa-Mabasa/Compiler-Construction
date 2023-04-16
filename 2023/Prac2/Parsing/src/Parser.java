@@ -40,6 +40,7 @@ class Parser{
                 if(parent == null){
                     if(index < tokens.size()){
                         System.out.println("\u001B[31mError\u001B[0m: invalid symbol at line "+ tokens.get(index).getRow() + " col "+ tokens.get(index).getCol() + ", token: "+ tokens.get(index).getContent());
+                        System.exit(0);
 
                         return false;
                     }
@@ -49,7 +50,6 @@ class Parser{
                 return true;
             }
             else{
-                System.out.println("parser is not proper");
                 // parser failed
                 return false;
             }
@@ -111,6 +111,8 @@ class Parser{
             procdefsNode.children.add(comma);
             index++;
             if(index >= tokens.size()){
+                System.out.println("\u001B[31mError\u001B[0m: invalid end of program at line "+ tokens.get(index-1).getRow() + " col "+ tokens.get(index-1).getCol() + ", expected proc definition after token: "+ tokens.get(index-1).getContent());
+                System.exit(0);
                 return false;
             }
             Boolean proc = parsePROC(procdefsNode);
@@ -160,11 +162,15 @@ class Parser{
             procNode.children.add(pNode);
             index++;
             if(index >= tokens.size()){
+                System.out.println("\u001B[31mError\u001B[0m: invalid end of program at line "+ tokens.get(index-1).getRow() + " col "+ tokens.get(index-1).getCol() + ", invalid proc definition after token: "+ tokens.get(index-1).getContent());
+                System.exit(0);
                 return false;
             }
             Boolean digits = parseDIGITS(procNode);
             if(digits){
                 if(index >= tokens.size()){
+                    System.out.println("\u001B[31mError\u001B[0m: invalid end of program at line "+ tokens.get(index-1).getRow() + " col "+ tokens.get(index-1).getCol() + ", invalid proc definition after token: "+ tokens.get(index-1).getContent());
+                    System.exit(0);
                     return false;
                 }
                 if(tokens.get(index).getContent() == "{"){
@@ -172,11 +178,15 @@ class Parser{
                     procNode.children.add(openBrace);
                     index++;
                     if(index >= tokens.size()){
+                        System.out.println("\u001B[31mError\u001B[0m: invalid end of program at line "+ tokens.get(index-1).getRow() + " col "+ tokens.get(index-1).getCol() + ", invalid proc definition after token: "+ tokens.get(index-1).getContent());
+                        System.exit(0);
                         return false;
                     }
                     Boolean progr = parsePROGR(procNode);
                     if(progr){
                         if(index >= tokens.size()){
+                            System.out.println("\u001B[31mError\u001B[0m: invalid end of program at line "+ tokens.get(index-1).getRow() + " col "+ tokens.get(index-1).getCol() + ", expected '}' after token: "+ tokens.get(index-1).getContent());
+                            System.exit(0);
                             return false;
                         }
                         if(tokens.get(index).getContent() == "}"){
@@ -186,6 +196,8 @@ class Parser{
                             return true;
                         }
                         else{
+                            System.out.println("\u001B[31mError\u001B[0m: invalid token at line "+ tokens.get(index).getRow() + " col "+ tokens.get(index).getCol() + ", expected \'"+ "}" + "\' token");
+                            System.exit(0);
                             // parser failed
                             return false;
                         }
@@ -196,6 +208,8 @@ class Parser{
                     }
                 }
                 else{
+                    System.out.println("\u001B[31mError\u001B[0m: invalid token at line "+ tokens.get(index).getRow() + " col "+ tokens.get(index).getCol() + ", expected \'"+ "{" + "\' token");
+                    System.exit(0);
                     // parser failed
                     return false;
                 }
@@ -206,6 +220,8 @@ class Parser{
             }
         }
         else{
+            System.out.println("\u001B[31mError\u001B[0m: invalid token at line "+ tokens.get(index).getRow() + " col "+ tokens.get(index).getCol() + ", expected \'"+ "p" + "\' token");
+            System.exit(0);
             // parser failed
             return false;
         }
@@ -324,7 +340,8 @@ class Parser{
             return true;
         }
         else{
-            System.out.println("Error: " + tokens.get(index).getContent());
+            System.out.println("\u001B[31mError\u001B[0m: invalid instruction at line "+ tokens.get(index).getRow() + " col "+ tokens.get(index).getCol() );
+            System.exit(0);
             // parser failed
             return false;
 
@@ -340,6 +357,8 @@ class Parser{
             inputNode.children.add(gNode);
             index++;
             if(index >= tokens.size()){
+                System.out.println("\u001B[31mError\u001B[0m: invalid input symbol at line "+ tokens.get(index-1).getRow() + " col "+ tokens.get(index-1).getCol() + ", after \'"+ tokens.get(index-1).getContent() + "\' token");
+                System.exit(0);
                 return false;
             }
             Boolean numvar = parseNUMVAR(inputNode);
@@ -354,6 +373,8 @@ class Parser{
             }
         }
         else{
+            System.out.println("\u001B[31mError\u001B[0m: invalid token at line "+ tokens.get(index).getRow() + " col "+ tokens.get(index).getCol() + ", expected \'"+ "g"+ "\' token");
+            System.exit(0);
             // parser failed
             return false;
         }
@@ -387,6 +408,8 @@ class Parser{
             }
         }
         else{
+            System.out.println("\u001B[31mError\u001B[0m: invalid token at line "+ tokens.get(index).getRow() + " col "+ tokens.get(index).getCol());
+            System.exit(0);
             // parser failed
             return false;
         }
@@ -401,6 +424,8 @@ class Parser{
             Boolean numvar = parseNUMVAR(assignNode);
             if(numvar){
                 if(index >= tokens.size()){
+                    System.out.println("\u001B[31mError\u001B[0m: invalid instruction at line "+ tokens.get(index-1).getRow() + " col "+ tokens.get(index-1).getCol() );
+                    System.exit(0);
                     return false;
                 }
                 if(tokens.get(index).getContent() == ":="){
@@ -408,6 +433,8 @@ class Parser{
                     assignNode.children.add(equalNode);
                     index++;
                     if(index >= tokens.size()){
+                        System.out.println("\u001B[31mError\u001B[0m: invalid assignment at line "+ tokens.get(index-1).getRow() + " col "+ tokens.get(index-1).getCol());
+                        System.exit(0);
                         return false;
                     }
                     Boolean numexpr = parseNUMEXPR(assignNode);
@@ -421,6 +448,8 @@ class Parser{
                     }
                 }
                 else{
+                    System.out.println("\u001B[31mError\u001B[0m: invalid token at line "+ tokens.get(index).getRow() + " col "+ tokens.get(index).getCol() + ", expected \'"+ ":=" + "\' token");
+                    System.exit(0);
                     // parser failed
                     return false;
                 }
@@ -434,6 +463,8 @@ class Parser{
             Boolean boolvar = parseBOOLVAR(assignNode);
             if(boolvar){
                 if(index >= tokens.size()){
+                    System.out.println("\u001B[31mError\u001B[0m: invalid instruction at line "+ tokens.get(index-1).getRow() + " col "+ tokens.get(index-1).getCol());
+                    System.exit(0);
                     return false;
                 }
                 if(tokens.get(index).getContent() == ":="){
@@ -441,6 +472,8 @@ class Parser{
                     assignNode.children.add(equalNode);
                     index++;
                     if(index >= tokens.size()){
+                        System.out.println("\u001B[31mError\u001B[0m: invalid assignment at line "+ tokens.get(index-1).getRow() + " col "+ tokens.get(index-1).getCol());
+                        System.exit(0);
                         return false;
                     }
                     Boolean boolexpr = parseBOOLEXPR(assignNode);
@@ -454,6 +487,8 @@ class Parser{
                     }
                 }
                 else{
+                    System.out.println("\u001B[31mError\u001B[0m: invalid token at line "+ tokens.get(index).getRow() + " col "+ tokens.get(index).getCol() + ", expected \'"+ ":=" + "\' token");
+                    System.exit(0);
                     // parser failed
                     return false;
                 }
@@ -467,6 +502,8 @@ class Parser{
             Boolean strvar = parseSTRINGV(assignNode);
             if(strvar){
                 if(index >= tokens.size()){
+                    System.out.println("\u001B[31mError\u001B[0m: invalid instruction at line "+ tokens.get(index-1).getRow() + " col "+ tokens.get(index-1).getCol());
+                    System.exit(0);
                     return false;
                 }
                 if(tokens.get(index).getContent() == ":="){
@@ -474,6 +511,8 @@ class Parser{
                     assignNode.children.add(equalNode);
                     index++;
                     if(index >= tokens.size()){
+                        System.out.println("\u001B[31mError\u001B[0m: invalid assignment at line "+ tokens.get(index-1).getRow() + " col "+ tokens.get(index-1).getCol());
+                        System.exit(0);
                         return false;
                     }
                     Boolean strval = parseSTRI(assignNode);
@@ -488,6 +527,8 @@ class Parser{
                     }
                 }
                 else{
+                    System.out.println("\u001B[31mError\u001B[0m: invalid token at line "+ tokens.get(index).getRow() + " col "+ tokens.get(index).getCol() + ", expected \'"+ ":=" + "\' token");
+                    System.exit(0);
                     // parser failed
                     return false;
                 }
@@ -498,6 +539,8 @@ class Parser{
             }
         }
         else{
+            System.out.println("\u001B[31mError\u001B[0m: invalid token at line "+ tokens.get(index).getRow() + " col "+ tokens.get(index).getCol());
+            System.exit(0);
             // parser failed
             return false;
         }
@@ -512,6 +555,8 @@ class Parser{
             callNode.children.add(cNode);
             index++;
             if(index >= tokens.size()){
+                System.out.println("\u001B[31mError\u001B[0m: invalid instruction at line "+ tokens.get(index-1).getRow() + " col "+ tokens.get(index-1).getCol());
+                System.exit(0);
                 return false;
             }
             if(tokens.get(index).getContent() == "p"){
@@ -519,6 +564,8 @@ class Parser{
                 callNode.children.add(pNode);
                 index++;
                 if(index >= tokens.size()){
+                    System.out.println("\u001B[31mError\u001B[0m: invalid instruction at line "+ tokens.get(index-1).getRow() + " col "+ tokens.get(index-1).getCol());
+                    System.exit(0);
                     return false;
                 }
                 Boolean digits = parseDIGITS(callNode);
@@ -532,11 +579,15 @@ class Parser{
                 }
             }
             else{
+                System.out.println("\u001B[31mError\u001B[0m: invalid token at line "+ tokens.get(index).getRow() + " col "+ tokens.get(index).getCol() + ", expected \'"+ "p" + "\' token");
+                System.exit(0);
                 // parser failed
                 return false;
             }
         }
         else{
+            System.out.println("\u001B[31mError\u001B[0m: invalid token at line "+ tokens.get(index).getRow() + " col "+ tokens.get(index).getCol() + ", expected \'"+ "c" + "\' token");
+            System.exit(0);
             // parser failed
             return false;
         }
@@ -551,6 +602,8 @@ class Parser{
             loopNode.children.add(wNode);
             index++;
             if(index >= tokens.size()){
+                System.out.println("\u001B[31mError\u001B[0m: invalid instruction at line "+ tokens.get(index-1).getRow() + " col "+ tokens.get(index-1).getCol());
+                System.exit(0);
                 return false;
             }
             if(tokens.get(index).getContent() == "("){
@@ -558,11 +611,15 @@ class Parser{
                 loopNode.children.add(openNode);
                 index++;
                 if(index >= tokens.size()){
+                    System.out.println("\u001B[31mError\u001B[0m: invalid instruction at line "+ tokens.get(index-1).getRow() + " col "+ tokens.get(index-1).getCol());
+                    System.exit(0);
                     return false;
                 }
                 Boolean boolexpr = parseBOOLEXPR(loopNode);
                 if(boolexpr){
                     if(index >= tokens.size()){
+                        System.out.println("\u001B[31mError\u001B[0m: invalid instruction at line "+ tokens.get(index-1).getRow() + " col "+ tokens.get(index-1).getCol());
+                        System.exit(0);
                         return false;
                     }
                     if(tokens.get(index).getContent() == ")"){
@@ -571,6 +628,8 @@ class Parser{
                         loopNode.children.add(closeNode);
                         index++;
                         if(index >= tokens.size()){
+                            System.out.println("\u001B[31mError\u001B[0m: invalid instruction at line "+ tokens.get(index-1).getRow() + " col "+ tokens.get(index-1).getCol());
+                            System.exit(0);
                             return false;
                         }
                         System.out.println(tokens.get(index).getContent());
@@ -579,11 +638,15 @@ class Parser{
                             loopNode.children.add(openCurlNode);
                             index++;
                             if(index >= tokens.size()){
+                                System.out.println("\u001B[31mError\u001B[0m: invalid instruction at line "+ tokens.get(index-1).getRow() + " col "+ tokens.get(index-1).getCol());
+                                System.exit(0);
                                 return false;
                             }
                             Boolean algo = parseALGO(loopNode);
                             if(algo){
                                 if(index >= tokens.size()){
+                                    System.out.println("\u001B[31mError\u001B[0m: invalid instruction at line "+ tokens.get(index-1).getRow() + " col "+ tokens.get(index-1).getCol());
+                                    System.exit(0);
                                     return false;
                                 }
                                 if(tokens.get(index).getContent() == "}"){
@@ -640,6 +703,8 @@ class Parser{
             branchNode.children.add(iNode);
             index++;
             if(index >= tokens.size()){
+                System.out.println("\u001B[31mError\u001B[0m: invalid instruction at line "+ tokens.get(index-1).getRow() + " col "+ tokens.get(index-1).getCol());
+                System.exit(0);
                 return false;
             }
             if(tokens.get(index).getContent() == "("){
@@ -647,11 +712,15 @@ class Parser{
                 branchNode.children.add(openNode);
                 index++;
                 if(index >= tokens.size()){
+                    System.out.println("\u001B[31mError\u001B[0m: invalid instruction at line "+ tokens.get(index-1).getRow() + " col "+ tokens.get(index-1).getCol());
+                    System.exit(0);
                     return false;
                 }
                 Boolean boolexpr = parseBOOLEXPR(branchNode);
                 if(boolexpr){
                     if(index >= tokens.size()){
+                        System.out.println("\u001B[31mError\u001B[0m: invalid instruction at line "+ tokens.get(index-1).getRow() + " col "+ tokens.get(index-1).getCol());
+                        System.exit(0);
                         return false;
                     }
                     if(tokens.get(index).getContent() == ")"){
@@ -659,6 +728,8 @@ class Parser{
                         branchNode.children.add(closeNode);
                         index++;
                         if(index >= tokens.size()){
+                            System.out.println("\u001B[31mError\u001B[0m: invalid instruction at line "+ tokens.get(index-1).getRow() + " col "+ tokens.get(index-1).getCol());
+                            System.exit(0);
                             return false;
                         }
                         if(tokens.get(index).getContent() == "t"){
@@ -666,6 +737,8 @@ class Parser{
                             branchNode.children.add(tNode);
                             index++;
                             if(index >= tokens.size()){
+                                System.out.println("\u001B[31mError\u001B[0m: invalid instruction at line "+ tokens.get(index-1).getRow() + " col "+ tokens.get(index-1).getCol());
+                                System.exit(0);
                                 return false;
                             }
                             if(tokens.get(index).getContent() == "{"){
@@ -673,6 +746,8 @@ class Parser{
                                 branchNode.children.add(openCurlNode);
                                 index++;
                                 if(index >= tokens.size()){
+                                    System.out.println("\u001B[31mError\u001B[0m: invalid instruction at line "+ tokens.get(index-1).getRow() + " col "+ tokens.get(index-1).getCol());
+                                    System.exit(0);
                                     return false;
                                 }
                                 Boolean algo = parseALGO(branchNode);
@@ -695,31 +770,39 @@ class Parser{
                                         }
                                     }
                                     else{
+                                        System.out.println("\u001B[31mError\u001B[0m: invalid token at line "+ tokens.get(index).getRow() + " col "+ tokens.get(index).getCol() + ", expected \'"+ "}" + "\' token");
+                                        System.exit(0);
                                         // parser failed
                                         return false;
                                     }
                                 }
                                 else{
+                                    
                                     // parser failed
                                     return false;
                                 }
                             }
                             else{
+                                System.out.println("\u001B[31mError\u001B[0m: invalid token at line "+ tokens.get(index).getRow() + " col "+ tokens.get(index).getCol() + ", expected \'"+ "{" + "\' token");
+                                System.exit(0);
                                 // parser failed
                                 return false;
                             }
                             
                         }
                         else{
+                            System.out.println("\u001B[31mError\u001B[0m: invalid token at line "+ tokens.get(index).getRow() + " col "+ tokens.get(index).getCol() + ", expected \'"+ "t" + "\' token");
+                            System.exit(0);
                             // parser failed
                             return false;
                         }
                     }
                     else{
+                        System.out.println("\u001B[31mError\u001B[0m: invalid token at line "+ tokens.get(index).getRow() + " col "+ tokens.get(index).getCol() + ", expected \'"+ ")" + "\' token");
+                        System.exit(0);
                         // parser failed
                         return false;
                     }
-
                 }
                 else{
                     // parser failed
@@ -727,11 +810,15 @@ class Parser{
                 }
             }
             else{
+                System.out.println("\u001B[31mError\u001B[0m: invalid token at line "+ tokens.get(index).getRow() + " col "+ tokens.get(index).getCol() + ", expected \'"+ "(" + "\' token");
+                System.exit(0);
                 // parser failed
                 return false;
             }
         }
         else{
+            System.out.println("\u001B[31mError\u001B[0m: invalid token at line "+ tokens.get(index).getRow() + " col "+ tokens.get(index).getCol() + ", expected \'"+ "i" + "\' token");
+            System.exit(0);
             // parser failed
             return false;
         }
@@ -751,6 +838,8 @@ class Parser{
             return true;
         }
         else{
+            System.out.println("\u001B[31mError\u001B[0m: invalid instruction at line "+ tokens.get(index-1).getRow() + " col "+ tokens.get(index-1).getCol());
+            System.exit(0);
             return false;
         }
     }
@@ -763,14 +852,14 @@ class Parser{
             return true;
         }
         else{
+            System.out.println("\u001B[31mError\u001B[0m: invalid instruction at line "+ tokens.get(index-1).getRow() + " col "+ tokens.get(index-1).getCol() + ", expected \'"+ "String" + "\' token");
+            System.exit(0);
             return false;
         }
     }
 
     private Boolean parseSEQ(Node parent){
         System.out.println("Parsing SEQ");
-        
-
         if(tokens.get(index).getContent() == ";"){
             Node seqNode = new Node(id++, "Non-Terminal", "SEQ");
             parent.children.add(seqNode);
@@ -796,6 +885,8 @@ class Parser{
             return true;
         }
         else{
+            System.out.println("\u001B[31mError\u001B[0m: invalid instruction at line "+ tokens.get(index-1).getRow() + " col "+ tokens.get(index-1).getCol());
+            System.exit(0);
             // parser failed
             return false;
         }
@@ -811,6 +902,8 @@ class Parser{
             numvarNode.children.add(nNode);
             index++;
             if(index >= tokens.size()){
+                System.out.println("\u001B[31mError\u001B[0m: invalid instruction at line "+ tokens.get(index-1).getRow() + " col "+ tokens.get(index-1).getCol());
+                System.exit(0);
                 return false;
             }
             Boolean digits = parseDIGITS(numvarNode);
@@ -824,12 +917,15 @@ class Parser{
             }
         }
         else{
+            System.out.println("\u001B[31mError\u001B[0m: invalid token at line "+ tokens.get(index).getRow() + " col "+ tokens.get(index).getCol() + ", expected \'"+ "n" + "\' token");
+            System.exit(0);
             // parser failed
             return false;
         }
     }
 
     private Boolean parseBOOLVAR(Node parent){
+        // TODO: Continue from here
         System.out.println("Parsing BOOLVAR");
         Node boolvarNode = new Node(id++, "Non-Terminal", "BOOLVAR");
         parent.children.add(boolvarNode);
