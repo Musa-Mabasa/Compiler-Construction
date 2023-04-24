@@ -12,11 +12,14 @@ class Parser {
         tokens = lex.tokenise(filename);
     }
 
-    public void parse() {
+    public Node parse() {
         if (parsePROGR(null)) {
             System.out.println("\u001B[32mSuccess\u001B[0m: parser passed");
             writeXML();
+            return root;
         }
+
+        return null;
     }
 
     private Boolean parsePROGR(Node parent) {

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PROGR id="1" children="2 ">
+	<ALGO id="2" children="3 ">
+		<INSTR id="3" children="4 ">
+			<ASSIGN id="4" children="5 18 19 ">
+				<BOOLVAR id="5" children="6 7 ">
+					b
+					<DIGITS id="7" children="8 10 ">
+						<D id="8" children="9 ">
+							0
+						</D>
+						<MORE id="10" children="11 ">
+							<DIGITS id="11" children="12 14 ">
+								<D id="12" children="13 ">
+									0
+								</D>
+								<MORE id="14" children="15 ">
+									<DIGITS id="15" children="16 ">
+										<D id="16" children="17 ">
+											1
+										</D>
+									</DIGITS>
+								</MORE>
+							</DIGITS>
+						</MORE>
+					</DIGITS>
+				</BOOLVAR>
+				:=
+				<BOOLEXPR id="19" children="20 ">
+					<CMPR id="20" children="21 22 23 37 38 52 ">
+						<
+						(
+						<NUMEXPR id="23" children="24 ">
+							<NUMVAR id="24" children="25 26 ">
+								n
+								<DIGITS id="26" children="27 29 ">
+									<D id="27" children="28 ">
+										0
+									</D>
+									<MORE id="29" children="30 ">
+										<DIGITS id="30" children="31 33 ">
+											<D id="31" children="32 ">
+												0
+											</D>
+											<MORE id="33" children="34 ">
+												<DIGITS id="34" children="35 ">
+													<D id="35" children="36 ">
+														1
+													</D>
+												</DIGITS>
+											</MORE>
+										</DIGITS>
+									</MORE>
+								</DIGITS>
+							</NUMVAR>
+						</NUMEXPR>
+						,
+						<NUMEXPR id="38" children="39 ">
+							<NUMVAR id="39" children="40 41 ">
+								n
+								<DIGITS id="41" children="42 44 ">
+									<D id="42" children="43 ">
+										0
+									</D>
+									<MORE id="44" children="45 ">
+										<DIGITS id="45" children="46 48 ">
+											<D id="46" children="47 ">
+												0
+											</D>
+											<MORE id="48" children="49 ">
+												<DIGITS id="49" children="50 ">
+													<D id="50" children="51 ">
+														2
+													</D>
+												</DIGITS>
+											</MORE>
+										</DIGITS>
+									</MORE>
+								</DIGITS>
+							</NUMVAR>
+						</NUMEXPR>
+						)
+					</CMPR>
+				</BOOLEXPR>
+			</ASSIGN>
+		</INSTR>
+	</ALGO>
+</PROGR>
