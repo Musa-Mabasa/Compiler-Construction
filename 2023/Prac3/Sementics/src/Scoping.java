@@ -20,6 +20,10 @@ public class Scoping {
 
             createTable(root,"global",0);
 
+            checkNaming();
+
+            // checkCalls(root, "global", 0);
+
             printTable();
         }
         catch (Exception e) {
@@ -65,11 +69,9 @@ public class Scoping {
 
                 scopeTable.put(String.valueOf(node.getId()), value);
 
-                currentScopeID++;
-                currentScope = procName;
 
                 for(Node child : node.children) {
-                    createTable(child, currentScope, currentScopeID);
+                    createTable(child, procName, node.getId());
                 }
             }
             else{
@@ -138,6 +140,103 @@ public class Scoping {
         }
 
         return false;
+    }
+
+    private void checkNaming(){
+        for(String key: scopeTable.keySet()){
+            String[] value = scopeTable.get(key);
+            //  TODO: checkUncle
+            if(checkSiblings(key,value) && checkParent(key, value) && checkUncle(key, value)){
+                continue;
+            }
+            else{
+                System.out.println("\u001B[31mSementic Error\u001B[0m: invalid procedure declaration");
+                System.exit(0);
+            }
+            
+        }
+    }
+
+    private Boolean checkSiblings(String key, String [] value){
+        String scopeID =  value[1];
+        String nodeName = value[0];
+        for(String Tablekey: scopeTable.keySet()){
+            String[] TableValue = scopeTable.get(key);
+            if(TableValue[0].charAt(0) == 'p'){
+                if(Tablekey.equals(key)){
+                    continue;
+                }
+                else if(scopeID.equals(TableValue[1]) && nodeName.equals(TableValue[0]) ){
+                    return false;
+                }
+            }
+            
+        }
+
+        return true;
+
+    }
+
+    private Boolean checkParent(String key, String [] value){
+        if(value[0].equals(value[2])){
+            return false;
+        }
+
+        return true;
+    }
+
+    private void checkCalls(Node node, String currentScope, int currentScopeID) {
+        if(node == null) {
+            return;
+        }
+
+
+        if(node.getType().equals("Non-Terminal")){
+
+            if(node.getContent().equals("NUMVAR") || node.getContent().equals("BOOLVAR") || node.getContent().equals("STRINGV")){
+                String var = getVAR(node, node.getId() , "");
+
+                String[] value = {var, "0", "global"};
+                Boolean isDuplicate = false;
+
+                for(String key: scopeTable.keySet()){
+                    String[] tableValue = scopeTable.get(key);
+                    if(isDuplicate(value, tableValue)){
+                        isDuplicate = true;
+                        break;
+                    }
+                }
+                if(!isDuplicate){
+                    scopeTable.put(String.valueOf(node.getId()), value);
+                }
+
+                for(Node child : node.children) {
+                    createTable(child, currentScope, currentScopeID);
+                }
+            }
+            else if(node.getContent().equals("PROC")){
+                String procName = getProcName(node, node.getId(), "");
+
+                String[] value = {procName, String.valueOf(currentScopeID), currentScope};
+
+                scopeTable.put(String.valueOf(node.getId()), value);
+
+
+                for(Node child : node.children) {
+                    createTable(child, procName, node.getId());
+                }
+            }
+            else{
+                for(Node child : node.children) {
+                    createTable(child, currentScope, currentScopeID);
+                }
+            }
+            
+        }
+        else{
+            createTable(null, currentScope, currentScopeID);
+        }
+
     }
 
     // private Boolean isDigit(String str){
