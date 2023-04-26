@@ -20,11 +20,12 @@ public class Scoping {
 
             createTable(root,"global",0);
 
+            printTable();
+
             checkNaming();
 
             // checkCalls(root, "global", 0);
 
-            printTable();
         }
         catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
@@ -145,15 +146,15 @@ public class Scoping {
     private void checkNaming(){
         for(String key: scopeTable.keySet()){
             String[] value = scopeTable.get(key);
-            //  TODO: checkUncle
-            if(checkSiblings(key,value) && checkParent(key, value) && checkUncle(key, value)){
-                continue;
-            }
-            else{
-                System.out.println("\u001B[31mSementic Error\u001B[0m: invalid procedure declaration");
-                System.exit(0);
-            }
-            
+            if(value[0].charAt(0) == 'p'){
+                if(checkSiblings(key,value) && checkParent(key, value) && checkUncle(key, value)){
+                    continue;
+                }
+                else{
+                    System.out.println("\u001B[31mSementic Error\u001B[0m: invalid procedure declaration");
+                    System.exit(0);
+                }
+            } 
         }
     }
 
@@ -161,12 +162,13 @@ public class Scoping {
         String scopeID =  value[1];
         String nodeName = value[0];
         for(String Tablekey: scopeTable.keySet()){
-            String[] TableValue = scopeTable.get(key);
+            String[] TableValue = scopeTable.get(Tablekey);
             if(TableValue[0].charAt(0) == 'p'){
                 if(Tablekey.equals(key)){
                     continue;
                 }
                 else if(scopeID.equals(TableValue[1]) && nodeName.equals(TableValue[0]) ){
+                    System.out.println("sibling");
                     return false;
                 }
             }
@@ -179,10 +181,39 @@ public class Scoping {
 
     private Boolean checkParent(String key, String [] value){
         if(value[0].equals(value[2])){
+            System.out.println("parent");
             return false;
         }
 
         return true;
+    }
+
+    private Boolean checkUncle(String key, String [] value){
+        String parentId = value[1];
+        String parentScopeID = "";
+        for(String Tablekey: scopeTable.keySet()){
+            String[] TableValue = scopeTable.get(Tablekey);
+            if(TableValue[0].charAt(0) == 'p'){
+                if(Tablekey.equals(parentId)){
+                    parentScopeID = TableValue[1];
+                }
+            }
+        }
+
+        for(String Tablekey: scopeTable.keySet()){
+            String[] TableValue = scopeTable.get(Tablekey);
+            if(TableValue[0].charAt(0) == 'p'){
+                if(Tablekey.equals(key)){
+                    continue;
+                }
+                else if(parentScopeID.equals(TableValue[1]) && value[0].equals(TableValue[0]) ){
+                    System.out.println("uncle");
+                    return false;
+                }
+            }
+        }
+        return true;
+
     }
 
     private void checkCalls(Node node, String currentScope, int currentScopeID) {
