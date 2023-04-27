@@ -1,3 +1,6 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 public class Scoping {
@@ -20,11 +23,15 @@ public class Scoping {
 
             createTable(root,"global",0);
 
-            printTable();
+            // printTable();
 
             checkNaming();
 
-            // checkCalls(root, "global", 0);
+            checkCalls(root, "global", 0);
+
+            System.out.println("\u001B[32mSementic Analysis Successful\u001B[0m");
+
+            createHTMLTable();
 
         }
         catch (Exception e) {
@@ -168,7 +175,6 @@ public class Scoping {
                     continue;
                 }
                 else if(scopeID.equals(TableValue[1]) && nodeName.equals(TableValue[0]) ){
-                    System.out.println("sibling");
                     return false;
                 }
             }
@@ -181,7 +187,6 @@ public class Scoping {
 
     private Boolean checkParent(String key, String [] value){
         if(value[0].equals(value[2])){
-            System.out.println("parent");
             return false;
         }
 
@@ -207,7 +212,6 @@ public class Scoping {
                     continue;
                 }
                 else if(parentScopeID.equals(TableValue[1]) && value[0].equals(TableValue[0]) ){
-                    System.out.println("uncle");
                     return false;
                 }
             }
@@ -221,70 +225,168 @@ public class Scoping {
             return;
         }
 
-
         if(node.getType().equals("Non-Terminal")){
 
-            if(node.getContent().equals("NUMVAR") || node.getContent().equals("BOOLVAR") || node.getContent().equals("STRINGV")){
-                String var = getVAR(node, node.getId() , "");
-
-                String[] value = {var, "0", "global"};
-                Boolean isDuplicate = false;
-
-                for(String key: scopeTable.keySet()){
-                    String[] tableValue = scopeTable.get(key);
-                    if(isDuplicate(value, tableValue)){
-                        isDuplicate = true;
-                        break;
-                    }
-                }
-                if(!isDuplicate){
-                    scopeTable.put(String.valueOf(node.getId()), value);
-                }
-
-                for(Node child : node.children) {
-                    createTable(child, currentScope, currentScopeID);
-                }
-            }
-            else if(node.getContent().equals("PROC")){
+            if(node.getContent().equals("PROC")){
                 String procName = getProcName(node, node.getId(), "");
 
-                String[] value = {procName, String.valueOf(currentScopeID), currentScope};
-
-                scopeTable.put(String.valueOf(node.getId()), value);
-
-
                 for(Node child : node.children) {
-                    createTable(child, procName, node.getId());
+                    checkCalls(child, procName, node.getId());
+                }
+            }
+            else if(node.getContent().equals("CALL")){
+                String callName = getCallName(node);
+                String callScopeID = String.valueOf(currentScopeID);
+                if(checkSelfCall(callName, currentScope) || checkChildCall(callName, callScopeID, currentScope) || checkSiblingCall(callName, callScopeID, currentScope)){
+                    for(Node child : node.children) {
+                        checkCalls(child, currentScope, currentScopeID);
+                    }
+                }
+                else{
+                    System.out.println("\u001B[31mSementic Error\u001B[0m: The procedure called here has no corresponding declaration in this scope!");
+                    System.exit(0);
                 }
             }
             else{
                 for(Node child : node.children) {
-                    createTable(child, currentScope, currentScopeID);
+                    checkCalls(child, currentScope, currentScopeID);
                 }
             }
             
         }
         else{
-            createTable(null, currentScope, currentScopeID);
+            checkCalls(null, currentScope, currentScopeID);
         }
 
     }
 
-    // private Boolean isDigit(String str){
-    //     try{
-    //         Integer.parseInt(str);
-    //         return true;
-    //     }
-    //     catch(Exception e){
-    //         return false;
-    //     }
+    private String getCallName(Node node){
+        if(node == null) {
+            return "";
+        }
 
-    // }
+        if(node.getType().equals("Non-Terminal")){
+           
+            if(node.getContent().equals("CALL")){
+                return getCallName(node.children.get(1)) + getCallName(node.children.get(2));
+            }else{
+                if(node.children.size()==2){
+                    return getCallName(node.children.get(0)) + getCallName(node.children.get(1));
+                }
+                else{
+                    return getCallName(node.children.get(0));
+                }
+            }
+        }
+        else{
+            return node.getContent();
+        }
+        
+    }
 
-    private void printTable(){
+    private Boolean checkSelfCall(String callName, String currentScope){
+        if(callName.equals(currentScope)){
+            return true;
+        }
+        return false;
+    }
+
+    private Boolean checkChildCall(String callName, String currentScopeID, String currentScope){
         for(String key: scopeTable.keySet()){
             String[] value = scopeTable.get(key);
-            System.out.println("NodeID: " + key + " | " + "NodeName: " + value[0] + " | " + "ScopeID: " + value[1] + " | " + "ScopeName: " + value[2]);
+            if(value[0].charAt(0) == 'p'){
+                if(value[1].equals(currentScopeID) && value[0].equals(callName)){
+                    return true;
+                }
+            }
         }
+        return false;
     }
+
+    private Boolean checkSiblingCall(String callName, String currentScopeID, String currentScope){
+        String parentScopeID = "";
+        for(String key: scopeTable.keySet()){
+            String[] value = scopeTable.get(key);
+            if(value[0].charAt(0) == 'p'){
+                if(key.equals(currentScopeID)){
+                    parentScopeID = value[1];
+                    break;
+                }
+            }
+        }
+
+        for(String key: scopeTable.keySet()){
+            String[] value = scopeTable.get(key);
+            if(value[0].charAt(0) == 'p'){
+                if(key.equals(currentScopeID)){
+                    continue;
+                }
+                if(value[1].equals(parentScopeID) && value[0].equals(callName)){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private void createHTMLTable(){
+        // create html file
+        try {
+            FileWriter fileWriter = new FileWriter("SymbolTable.html");
+
+            fileWriter.write("<!DOCTYPE html>\n");
+            fileWriter.write("<html lang=\"en\">\n");
+            fileWriter.write("<head>\n");
+            fileWriter.write("<meta charset=\"UTF-8\">\n");
+            fileWriter.write("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n");
+            fileWriter.write("<title>Symbol Table</title>\n");
+            fileWriter.write("</head>\n");
+
+            fileWriter.write("<style>\n");
+            fileWriter.write("table, th, td {\n");
+            fileWriter.write("border: 1px solid black;\n");
+            fileWriter.write("}\n");
+            fileWriter.write("</style>\n");
+            
+            fileWriter.write("<body>\n");
+            fileWriter.write("<table>\n");
+            fileWriter.write("<tr>\n");
+            fileWriter.write("<th>NodeID</th>\n");
+            fileWriter.write("<th>NodeName</th>\n");
+            fileWriter.write("<th>ScopeID</th>\n");
+            fileWriter.write("<th>ScopeName</th>\n");
+            fileWriter.write("</tr>\n");
+
+            for(String key: scopeTable.keySet()){
+                String[] value = scopeTable.get(key);
+                fileWriter.write("<tr>\n");
+                fileWriter.write("<td>" + key + "</td>\n");
+                fileWriter.write("<td>" + value[0] + "</td>\n");
+                fileWriter.write("<td>" + value[1] + "</td>\n");
+                fileWriter.write("<td>" + value[2] + "</td>\n");
+                fileWriter.write("</tr>\n");
+            }
+            
+            fileWriter.write("</table>\n");
+            fileWriter.write("</body>\n");
+            fileWriter.write("</html>\n");
+
+            fileWriter.close();
+
+
+
+           
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+    }
+
+
+    // private void printTable(){
+    //     for(String key: scopeTable.keySet()){
+    //         String[] value = scopeTable.get(key);
+    //         System.out.println("NodeID: " + key + " | " + "NodeName: " + value[0] + " | " + "ScopeID: " + value[1] + " | " + "ScopeName: " + value[2]);
+    //     }
+    // }
 }
