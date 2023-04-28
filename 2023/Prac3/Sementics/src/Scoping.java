@@ -9,8 +9,11 @@ public class Scoping {
 
     private Hashtable<String, String[]> scopeTable = null;
 
+    private List<String> calledList;
+
     public Scoping() {
         scopeTable = new Hashtable<String, String[]>();
+        calledList = new ArrayList<String>();
     }
 
     public void Scope() {
@@ -29,7 +32,9 @@ public class Scoping {
 
             checkCalls(root, "global", 0);
 
-            System.out.println("\u001B[32mSementic Analysis Successful\u001B[0m");
+            checkIfAllCalled();
+
+            System.out.println("\u001B[32mSuccess\u001B[0m: Sementic Analysis Successful");
 
             createHTMLTable();
 
@@ -237,7 +242,7 @@ public class Scoping {
             else if(node.getContent().equals("CALL")){
                 String callName = getCallName(node);
                 String callScopeID = String.valueOf(currentScopeID);
-                if(checkSelfCall(callName, currentScope) || checkChildCall(callName, callScopeID, currentScope) || checkSiblingCall(callName, callScopeID, currentScope)){
+                if(checkSelfCall(callName, currentScope, currentScopeID) || checkChildCall(callName, callScopeID, currentScope) || checkSiblingCall(callName, callScopeID, currentScope)){
                     for(Node child : node.children) {
                         checkCalls(child, currentScope, currentScopeID);
                     }
@@ -284,8 +289,9 @@ public class Scoping {
         
     }
 
-    private Boolean checkSelfCall(String callName, String currentScope){
+    private Boolean checkSelfCall(String callName, String currentScope, int currentScopeID){
         if(callName.equals(currentScope)){
+            calledList.add(String.valueOf(currentScopeID));
             return true;
         }
         return false;
@@ -296,6 +302,7 @@ public class Scoping {
             String[] value = scopeTable.get(key);
             if(value[0].charAt(0) == 'p'){
                 if(value[1].equals(currentScopeID) && value[0].equals(callName)){
+                    calledList.add(key);
                     return true;
                 }
             }
@@ -322,11 +329,23 @@ public class Scoping {
                     continue;
                 }
                 if(value[1].equals(parentScopeID) && value[0].equals(callName)){
+                    calledList.add(key);
                     return true;
                 }
             }
         }
         return false;
+    }
+
+    private void checkIfAllCalled(){
+        for(String key: scopeTable.keySet()){
+            String[] value = scopeTable.get(key);
+            if(value[0].charAt(0) == 'p'){
+                if(!calledList.contains(key)){
+                    System.out.println("\u001B[34mWarning\u001B[0m: The procedure declared here is not called from anywhere within the scope to which it belongs!");
+                }
+            }
+        }
     }
 
     private void createHTMLTable(){
